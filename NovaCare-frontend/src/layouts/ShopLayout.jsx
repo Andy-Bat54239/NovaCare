@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { ShoppingCart, Menu, X, Pill } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { ShoppingCart, Menu, X, Pill, Sun, Moon } from 'lucide-react';
 
 export default function ShopLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { getItemCount } = useCart();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const itemCount = getItemCount();
 
@@ -26,6 +28,9 @@ export default function ShopLayout() {
           </div>
 
           <div className="shop-nav-right">
+            <button className="shop-theme-btn" onClick={toggleTheme} title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}>
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
             <button className="shop-cart-btn" onClick={() => navigate('/shop/cart')}>
               <ShoppingCart size={22} />
               {itemCount > 0 && <span className="shop-cart-count">{itemCount}</span>}
@@ -46,7 +51,7 @@ export default function ShopLayout() {
         <div className="shop-footer-inner">
           <div>
             <h4>NovaCare Pharmacy</h4>
-            <p>Your trusted pharmacy partner since 2020. We provide quality medicines and healthcare products across all our branches.</p>
+            <p>Your trusted pharmacy partner in Rwanda since 2020. We provide quality medicines and healthcare products across all our branches in Kigali.</p>
           </div>
           <div>
             <h4>Quick Links</h4>
@@ -57,10 +62,10 @@ export default function ShopLayout() {
           </div>
           <div>
             <h4>Contact Info</h4>
-            <p>+1 (555) 100-2001</p>
-            <p>info@novacare.com</p>
-            <p>123 Main Street, Downtown</p>
-            <p>Metro City</p>
+            <p>+250 788 100 201</p>
+            <p>info@novacare.rw</p>
+            <p>KN 4 Ave, Nyarugenge</p>
+            <p>Kigali, Rwanda</p>
           </div>
           <div>
             <h4>Hours</h4>

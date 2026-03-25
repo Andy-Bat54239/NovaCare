@@ -65,7 +65,7 @@ export default function MedicineImage({ medicine, size = 'md', className = '' })
       className={className}
       style={{
         height: s.height,
-        background: hasImage ? '#f8fafc' : `linear-gradient(135deg, ${config.gradient[0]}, ${config.gradient[1]})`,
+        background: hasImage ? 'var(--gray-50)' : `linear-gradient(135deg, ${config.gradient[0]}, ${config.gradient[1]})`,
         borderRadius: size === 'lg' ? 16 : size === 'sm' ? 8 : 12,
         display: 'flex',
         flexDirection: 'column',

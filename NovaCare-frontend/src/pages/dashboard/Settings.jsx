@@ -1,17 +1,36 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { branches } from '../../data/branches';
-import { Save, User, Bell, Monitor, Building2 } from 'lucide-react';
+import { Save, User, Bell, Monitor, Building2, Eye, EyeOff } from 'lucide-react';
 
-export default function Settings() {
-  const { currentUser } = useAuth();
-  const [profile, setProfile] = useState({ firstName: currentUser?.firstName || '', lastName: currentUser?.lastName || '', currentPassword: '', newPassword: '', confirmPassword: '' });
-  const [notifications, setNotifications] = useState({ email: true, lowStock: true, orderUpdates: true, salesReports: false });
-  const [display, setDisplay] = useState({ theme: 'light', itemsPerPage: '10' });
+function PasswordInput({ value, onChange, show, onToggle }) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <input className="form-input" type={show ? 'text' : 'password'} value={value} onChange={onChange} style={{ paddingRight: 44 }} />
+      <button type="button" onClick={onToggle} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', padding: 0 }}>
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
+  );
+}
 
-  const Toggle = ({ checked, onChange }) => (
+function Toggle({ checked, onChange }) {
+  return (
     <label className="toggle"><input type="checkbox" checked={checked} onChange={onChange} /><span className="toggle-slider" /></label>
   );
+}
+
+export default function Settings() {
+  const { currentUser, updateProfile } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [profileMessage, setProfileMessage] = useState('');
+  const [profile, setProfile] = useState({ firstName: currentUser?.firstName || '', lastName: currentUser?.lastName || '', currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
+  const [notifications, setNotifications] = useState({ email: true, lowStock: true, orderUpdates: true, salesReports: false });
+  const [display, setDisplay] = useState({ itemsPerPage: '10' });
+
+  const togglePassword = (field) => setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
 
   return (
     <div>
@@ -25,11 +44,24 @@ export default function Settings() {
         </div>
         <div className="form-group"><label className="form-label">Email</label><input className="form-input" value={currentUser?.email || ''} readOnly style={{ opacity: 0.6 }} /></div>
         <div className="form-row">
-          <div className="form-group"><label className="form-label">Current Password</label><input className="form-input" type="password" value={profile.currentPassword} onChange={e => setProfile({ ...profile, currentPassword: e.target.value })} /></div>
-          <div className="form-group"><label className="form-label">New Password</label><input className="form-input" type="password" value={profile.newPassword} onChange={e => setProfile({ ...profile, newPassword: e.target.value })} /></div>
-          <div className="form-group"><label className="form-label">Confirm Password</label><input className="form-input" type="password" value={profile.confirmPassword} onChange={e => setProfile({ ...profile, confirmPassword: e.target.value })} /></div>
+          <div className="form-group"><label className="form-label">Current Password</label><PasswordInput value={profile.currentPassword} onChange={e => setProfile({ ...profile, currentPassword: e.target.value })} show={showPasswords.current} onToggle={() => togglePassword('current')} /></div>
+          <div className="form-group"><label className="form-label">New Password</label><PasswordInput value={profile.newPassword} onChange={e => setProfile({ ...profile, newPassword: e.target.value })} show={showPasswords.new} onToggle={() => togglePassword('new')} /></div>
+          <div className="form-group"><label className="form-label">Confirm Password</label><PasswordInput value={profile.confirmPassword} onChange={e => setProfile({ ...profile, confirmPassword: e.target.value })} show={showPasswords.confirm} onToggle={() => togglePassword('confirm')} /></div>
         </div>
-        <button className="btn btn-primary" onClick={() => { console.log('Save profile:', profile); alert('Profile updated!'); }}><Save size={18} /> Save Profile</button>
+        {profileMessage && <div className="alert alert-success" style={{ marginBottom: 12 }}>{profileMessage}</div>}
+        <button className="btn btn-primary" onClick={() => {
+          if (profile.newPassword && profile.newPassword !== profile.confirmPassword) {
+            setProfileMessage('');
+            alert('New password and confirmation do not match.');
+            return;
+          }
+          const result = updateProfile({ firstName: profile.firstName, lastName: profile.lastName });
+          if (result.success) {
+            setProfileMessage('Profile updated successfully!');
+            setProfile(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+            setTimeout(() => setProfileMessage(''), 3000);
+          }
+        }}><Save size={18} /> Save Profile</button>
       </div>
 
       <div className="settings-section">
@@ -52,7 +84,7 @@ export default function Settings() {
         <div className="form-row">
           <div className="form-group">
             <label className="form-label">Theme</label>
-            <select className="form-select" value={display.theme} onChange={e => setDisplay({ ...display, theme: e.target.value })}>
+            <select className="form-select" value={theme} onChange={e => setTheme(e.target.value)}>
               <option value="light">Light</option>
               <option value="dark">Dark</option>
             </select>

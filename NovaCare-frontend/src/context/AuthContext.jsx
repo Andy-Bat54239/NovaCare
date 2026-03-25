@@ -40,6 +40,13 @@ export function AuthProvider({ children }) {
     return perms.includes(permName);
   };
 
+  const updateProfile = (updates) => {
+    if (!currentUser) return { success: false, error: 'Not authenticated' };
+    const updatedUser = { ...currentUser, ...updates };
+    setCurrentUser(updatedUser);
+    return { success: true };
+  };
+
   const getRoleName = () => {
     if (!currentUser) return '';
     switch (currentUser.role) {
@@ -51,7 +58,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAuthenticated, login, logout, hasPermission, getRoleName }}>
+    <AuthContext.Provider value={{ currentUser, isAuthenticated, login, logout, updateProfile, hasPermission, getRoleName }}>
       {children}
     </AuthContext.Provider>
   );

@@ -7,7 +7,7 @@ export default function About() {
     <div>
       <section className="about-hero">
         <h1>About NovaCare Pharmacy</h1>
-        <p>Dedicated to providing quality healthcare and pharmaceutical services to our community since 2020.</p>
+        <p>Dedicated to providing quality healthcare and pharmaceutical services to communities across Rwanda since 2020.</p>
       </section>
 
       <div className="about-stats">
@@ -28,7 +28,7 @@ export default function About() {
           <div className="feature-card">
             <div className="feature-card-icon"><Eye size={28} /></div>
             <h3>Our Vision</h3>
-            <p>To become the most trusted pharmacy network in the region, known for our commitment to patient care, innovation, and community health.</p>
+            <p>To become the most trusted pharmacy network in Rwanda, known for our commitment to patient care, innovation, and community health.</p>
           </div>
           <div className="feature-card">
             <div className="feature-card-icon"><Heart size={28} /></div>

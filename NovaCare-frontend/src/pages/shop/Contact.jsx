@@ -54,10 +54,10 @@ export default function Contact() {
         </div>
 
         <div>
-          <div className="contact-info-card"><Phone size={20} /><div><h4>Phone</h4><p>+1 (555) 100-2001</p><p>+1 (555) 100-2002</p></div></div>
-          <div className="contact-info-card"><Mail size={20} /><div><h4>Email</h4><p>info@novacare.com</p><p>support@novacare.com</p></div></div>
+          <div className="contact-info-card"><Phone size={20} /><div><h4>Phone</h4><p>+250 788 100 201</p><p>+250 788 100 202</p></div></div>
+          <div className="contact-info-card"><Mail size={20} /><div><h4>Email</h4><p>info@novacare.rw</p><p>support@novacare.rw</p></div></div>
           <div className="contact-info-card"><Clock size={20} /><div><h4>Operating Hours</h4><p>Mon-Fri: 8AM - 9PM</p><p>Sat: 9AM - 7PM</p><p>Sun: 10AM - 5PM</p></div></div>
-          <div className="contact-info-card"><MapPin size={20} /><div><h4>Main Branch</h4><p>123 Main Street, Downtown</p><p>Metro City</p></div></div>
+          <div className="contact-info-card"><MapPin size={20} /><div><h4>Main Branch</h4><p>KN 4 Ave, Nyarugenge</p><p>Kigali, Rwanda</p></div></div>
         </div>
       </div>
     </div>

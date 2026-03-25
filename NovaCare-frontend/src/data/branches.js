@@ -1,8 +1,8 @@
 export const branches = [
-  { id: 1, name: 'Downtown Main Branch', address: '123 Main Street, Downtown, Metro City', phone: '+1 (555) 100-2001', isActive: true },
-  { id: 2, name: 'Westside Medical Center', address: '456 West Avenue, Westside, Metro City', phone: '+1 (555) 100-2002', isActive: true },
-  { id: 3, name: 'Northgate Plaza Branch', address: '789 North Road, Northgate, Metro City', phone: '+1 (555) 100-2003', isActive: true },
-  { id: 4, name: 'Eastpoint Pharmacy', address: '321 East Boulevard, Eastpoint, Metro City', phone: '+1 (555) 100-2004', isActive: false },
+  { id: 1, name: 'Kigali City Center Branch', address: 'KN 4 Ave, Nyarugenge, Kigali', phone: '+250 788 100 201', isActive: true },
+  { id: 2, name: 'Kimironko Health Hub', address: 'KG 11 Ave, Kimironko, Gasabo, Kigali', phone: '+250 788 100 202', isActive: true },
+  { id: 3, name: 'Nyamirambo Branch', address: 'KN 27 St, Nyamirambo, Nyarugenge, Kigali', phone: '+250 788 100 203', isActive: true },
+  { id: 4, name: 'Remera Pharmacy', address: 'KG 17 Ave, Remera, Gasabo, Kigali', phone: '+250 788 100 204', isActive: false },
 ];
 
 export default branches;

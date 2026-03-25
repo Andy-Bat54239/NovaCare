@@ -28,7 +28,7 @@ function QuickAction({ icon: Icon, label, description, onClick, color = 'var(--p
       onClick={onClick}
       style={{
         display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px',
-        background: 'var(--card-bg)', border: '1px solid var(--border-color)',
+        background: 'var(--bg-card)', border: '1px solid var(--border-color)',
         borderRadius: 12, cursor: 'pointer', textAlign: 'left', width: '100%',
         transition: 'all 0.2s',
       }}
@@ -329,7 +329,10 @@ function ManagerDashboard({ stats, salesChartData, topMedicines, navigate, curre
       <div className="charts-grid">
         <div className="card">
           <div className="card-header">
-            <SectionHeader title="Recent Branch Orders" action actionLabel="View All" onAction={() => navigate('/dashboard/orders')} />
+            <h3>Recent Branch Orders</h3>
+            <button onClick={() => navigate('/dashboard/orders')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              View All <ArrowRight size={14} />
+            </button>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
@@ -356,7 +359,10 @@ function ManagerDashboard({ stats, salesChartData, topMedicines, navigate, curre
 
         <div className="card">
           <div className="card-header">
-            <SectionHeader title="Low Stock Alerts" action actionLabel="View All" onAction={() => navigate('/dashboard/batches')} />
+            <h3>Low Stock Alerts</h3>
+            <button onClick={() => navigate('/dashboard/batches')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              View All <ArrowRight size={14} />
+            </button>
           </div>
           <div className="card-body">
             {stats.lowStock.length === 0 ? (
@@ -476,7 +482,10 @@ function PharmacistDashboard({ stats, navigate, currentUser }) {
 
         <div className="card">
           <div className="card-header">
-            <SectionHeader title="My Recent Sales" action actionLabel="View All" onAction={() => navigate('/dashboard/sales')} />
+            <h3>My Recent Sales</h3>
+            <button onClick={() => navigate('/dashboard/sales')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              View All <ArrowRight size={14} />
+            </button>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
@@ -502,7 +511,10 @@ function PharmacistDashboard({ stats, navigate, currentUser }) {
       <div className="charts-grid">
         <div className="card">
           <div className="card-header">
-            <SectionHeader title="Low Stock Alerts" />
+            <h3>Low Stock Alerts</h3>
+            <button onClick={() => navigate('/dashboard/batches')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              View All <ArrowRight size={14} />
+            </button>
           </div>
           <div className="card-body">
             {stats.lowStock.length === 0 ? (
@@ -529,7 +541,7 @@ function PharmacistDashboard({ stats, navigate, currentUser }) {
 
         <div className="card">
           <div className="card-header">
-            <SectionHeader title="Expiring Soon" />
+            <h3>Expiring Soon</h3>
           </div>
           <div className="card-body">
             {stats.expiringSoon.length === 0 ? (
