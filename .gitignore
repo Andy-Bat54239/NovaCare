@@ -10,6 +10,9 @@ NovaCare.API/.vs/
 # Frontend
 novacare-frontend/node_modules/
 novacare-frontend/dist/
+novacare-frontend/.claude
+novacare-frontend/.idea
+novacare-frontend/.vscode
 
 # Environment / secrets (never commit production values)
 # appsettings.json is committed for dev — do NOT copy production secrets here
