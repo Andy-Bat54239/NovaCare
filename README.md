@@ -577,10 +577,10 @@ The codebase is divided across four developers:
 
 | Dev | Area | Key Files |
 |-----|------|-----------|
-| **Dev 1** | Backend Core (Auth, Users, Data) | `AuthController`, `UsersController`, `AppDbContext`, `JwtHelper`, `Migrations/`, `Program.cs` |
-| **Dev 2** | Backend Business Logic (Inventory, Sales, Chat) | `MedicinesController`, `SalesController`, `OrdersController`, `ChatsController`, `ChatHub` |
-| **Dev 3** | Frontend — Staff Dashboard & Auth | `DashboardLayout`, `Chats.jsx`, `ContactMessages.jsx`, `Users.jsx`, `Login.jsx`, `AuthContext` |
-| **Dev 4** | Frontend — Customer Portal & Shop | `CustomerLayout`, `CustomerMedicines`, `CustomerCheckout`, `CustomerProfile`, `Customers.jsx` |
+| **Biyonga Bahati Andy** | Backend Core (Auth, Users, Data) | `AuthController`, `UsersController`, `AppDbContext`, `JwtHelper`, `Migrations/`, `Program.cs` |
+| **Iriza Linda** | Backend Business Logic (Inventory, Sales, Chat) | `MedicinesController`, `SalesController`, `OrdersController`, `ChatsController`, `ChatHub` |
+| **Umutoniwase Cynthia Adeline** | Frontend — Staff Dashboard & Auth | `DashboardLayout`, `Chats.jsx`, `ContactMessages.jsx`, `Users.jsx`, `Login.jsx`, `AuthContext` |
+| **Irakoze Jessica** | Frontend — Customer Portal & Shop | `CustomerLayout`, `CustomerMedicines`, `CustomerCheckout`, `CustomerProfile`, `Customers.jsx` |
 
 ### Branch Naming Convention
 
@@ -588,7 +588,7 @@ The codebase is divided across four developers:
 {studentId}_{Area}
 ```
 
-Examples: `26764_Backendone`, `26765_Backendtwo`, `26766_Frontendone`, `26767_Frontendtwo`
+Examples: `26764_Backendone`, `26248_Backendtwo`, `26754_Frontendone`, `26026_Frontendtwo`
 
 ---
 
