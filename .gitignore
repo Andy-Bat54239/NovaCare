@@ -1,3 +1,29 @@
 BACKEND.md
-CLAUDE.md
 .claude
+# .NET build output
+NovaCare.API/bin/
+NovaCare.API/obj/
+NovaCare.API/.vs/
+*.user
+*.suo
+
+# Frontend
+novacare-frontend/node_modules/
+novacare-frontend/dist/
+
+# Environment / secrets (never commit production values)
+# appsettings.json is committed for dev — do NOT copy production secrets here
+*.env
+.env.local
+
+# Project docs (not pushed — shared separately)
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python build scripts
+build_pptx.py
+NovaCare_Presentation.pptx
+
