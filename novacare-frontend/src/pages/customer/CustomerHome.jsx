@@ -62,7 +62,9 @@ export default function CustomerHome() {
           { to: '/customer/chat',      icon: MessageSquare, label: 'Chat with Staff',   desc: 'Ask questions or get support from our pharmacy team', color: '#6366f1' },
           { to: '/customer/medicines', icon: Package,       label: 'Browse Medicines',  desc: 'Check availability and stock across all branches',    color: '#0d9488' },
           { to: '/customer/orders',    icon: ClipboardList, label: 'My Orders',         desc: 'Track your online order history and status',          color: '#f59e0b' },
-        ].map(({ to, icon: Icon, label, desc, color }) => (
+        ].map(({ to, icon, label, desc, color }) => {
+          const Icon = icon;
+          return (
           <Link key={label} to={to} style={{ textDecoration: 'none' }}>
             <div style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border-color)', borderRadius: 16, padding: 24, transition: 'all 0.2s', cursor: 'pointer' }}
               onMouseOver={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
@@ -74,7 +76,8 @@ export default function CustomerHome() {
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>{desc}</p>
             </div>
           </Link>
-        ))}
+          );
+        })}
       </div>
 
       {loading ? (
@@ -111,7 +114,9 @@ export default function CustomerHome() {
                 icon: TrendingUp,
                 to: '/customer/orders',
               },
-            ].map(({ label, value, sub, color, icon: Icon, to }) => (
+            ].map(({ label, value, sub, color, icon, to }) => {
+              const Icon = icon;
+              return (
               <Link key={label} to={to} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border-color)', borderRadius: 14, padding: '20px 22px', transition: 'box-shadow 0.15s' }}
                   onMouseOver={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'}
@@ -126,7 +131,8 @@ export default function CustomerHome() {
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{sub}</div>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
 
           {/* Main content: recent orders + available medicines */}
