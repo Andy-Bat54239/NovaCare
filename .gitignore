@@ -1,0 +1,64 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ========================
+# DEV 4 FILES (IGNORE ALL)
+# ========================
+
+# Layouts
+src/layouts/ShopLayout.jsx
+src/layouts/CustomerLayout.jsx
+
+# Customer portal
+src/pages/customer/
+
+# Shop pages
+src/pages/shop/
+
+# Dashboard inventory/sales
+src/pages/dashboard/
+
+# Components
+src/components/MedicineImage.jsx
+src/components/NotificationBell.jsx
+
+# API modules
+src/api/medicines.js
+src/api/batches.js
+src/api/sales.js
+src/api/orders.js
+src/api/customers.js
+
+# Data
+src/data/medicines.js
+src/data/batches.js
+src/data/customers.js
+src/data/orders.js
+src/data/sales.js
+src/data/stockMovements.js
+src/data/suppliers.js
+
+# Assets (optional — only if you don't want them)
+src/assets/
