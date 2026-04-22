@@ -1,4 +1,6 @@
-# Logs
+# ========================
+# GENERAL (FRONTEND)
+# ========================
 logs
 *.log
 npm-debug.log*
@@ -12,11 +14,12 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Editor / OS
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
@@ -60,5 +63,31 @@ src/data/sales.js
 src/data/stockMovements.js
 src/data/suppliers.js
 
-# Assets (optional — only if you don't want them)
+# Assets (optional)
 src/assets/
+
+# ========================
+# BACKEND (FROM MAIN)
+# ========================
+BACKEND.md
+.claude
+
+# .NET build output
+NovaCare.API/bin/
+NovaCare.API/obj/
+NovaCare.API/.vs/
+
+# Frontend (root repo level)
+novacare-frontend/node_modules/
+novacare-frontend/dist/
+
+# Environment / secrets
+*.env
+.env.local
+
+# Docs
+CLAUDE.md
+
+# Python / misc
+build_pptx.py
+NovaCare_Presentation.pptx
