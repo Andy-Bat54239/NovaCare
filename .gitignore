@@ -1,3 +1,5 @@
+BACKEND.md
+.claude
 # .NET build output
 NovaCare.API/bin/
 NovaCare.API/obj/
@@ -24,3 +26,4 @@ Thumbs.db
 # Python build scripts
 build_pptx.py
 NovaCare_Presentation.pptx
+
