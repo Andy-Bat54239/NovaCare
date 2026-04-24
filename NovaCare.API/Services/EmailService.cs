@@ -9,6 +9,10 @@ public interface IEmailService
     Task SendWelcomeEmailAsync(string toEmail, string firstName, string temporaryPassword);
     Task SendPasswordResetEmailAsync(string toEmail, string firstName, string temporaryPassword);
     Task SendOtpEmailAsync(string toEmail, string firstName, string otpCode);
+    Task SendOrderStatusEmailAsync(string toEmail, string customerName, int orderId,
+        string status, string branchName, decimal totalAmount,
+        IEnumerable<(string MedicineName, int Quantity, decimal UnitPrice)> items,
+        string? reason = null);
 }
 
 public class EmailService(IConfiguration config, ILogger<EmailService> logger) : IEmailService
@@ -35,6 +39,18 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger) :
             to: toEmail,
             subject: "NovaCare — Verify Your Email Address",
             html: BuildOtpHtml(firstName, otpCode)
+        );
+
+    public Task SendOrderStatusEmailAsync(string toEmail, string customerName, int orderId,
+        string status, string branchName, decimal totalAmount,
+        IEnumerable<(string MedicineName, int Quantity, decimal UnitPrice)> items,
+        string? reason = null) =>
+        SendAsync(
+            to: toEmail,
+            subject: status == "Approved"
+                ? $"NovaCare — Your Order #{orderId} Has Been Approved"
+                : $"NovaCare — Update on Your Order #{orderId}",
+            html: BuildOrderStatusHtml(customerName, orderId, status, branchName, totalAmount, items, reason)
         );
 
     private async Task SendAsync(string to, string subject, string html)
@@ -141,6 +157,116 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger) :
         </body>
         </html>
         """;
+
+    private static string BuildOrderStatusHtml(
+        string customerName, int orderId, string status, string branchName,
+        decimal totalAmount, IEnumerable<(string MedicineName, int Quantity, decimal UnitPrice)> items,
+        string? reason)
+    {
+        bool approved = status == "Approved";
+        string headerColor  = approved ? "#0d9488" : "#ef4444";
+        string badgeColor   = approved ? "#f0fdf4" : "#fef2f2";
+        string badgeBorder  = approved ? "#bbf7d0" : "#fecaca";
+        string badgeText    = approved ? "#15803d"  : "#dc2626";
+        string statusLabel  = approved ? "Approved"  : "Rejected";
+        string statusIcon   = approved ? "✓" : "✕";
+
+        var itemRows = string.Join("\n", items.Select(i => $"""
+            <tr>
+              <td style="padding:8px 12px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;">{i.MedicineName}</td>
+              <td style="padding:8px 12px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;text-align:center;">{i.Quantity}</td>
+              <td style="padding:8px 12px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;text-align:right;">RWF {i.UnitPrice * i.Quantity:N0}</td>
+            </tr>
+        """));
+
+        string reasonBlock = (!approved && !string.IsNullOrWhiteSpace(reason)) ? $"""
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:14px 16px;margin-bottom:24px;">
+              <p style="margin:0;font-size:13px;color:#991b1b;line-height:1.6;">
+                <strong>Reason:</strong> {reason}
+              </p>
+            </div>
+        """ : "";
+
+        string ctaBlock = approved ? $"""
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px 16px;margin-bottom:24px;">
+              <p style="margin:0;font-size:13px;color:#166534;line-height:1.6;">
+                <strong>Next step:</strong> Please visit <strong>{branchName}</strong> to collect your order.
+                Bring a valid ID and, if applicable, your original prescription.
+              </p>
+            </div>
+            <a href="http://localhost:5173/customer/orders"
+               style="display:block;text-align:center;background:#0d9488;color:#fff;text-decoration:none;padding:13px 24px;border-radius:8px;font-size:15px;font-weight:600;margin-bottom:8px;">
+              View My Orders →
+            </a>
+        """ : $"""
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:14px 16px;margin-bottom:24px;">
+              <p style="margin:0;font-size:13px;color:#92400e;line-height:1.6;">
+                You can place a new order or contact our pharmacy team via the chat feature in your customer portal for assistance.
+              </p>
+            </div>
+            <a href="http://localhost:5173/customer/orders"
+               style="display:block;text-align:center;background:#0d9488;color:#fff;text-decoration:none;padding:13px 24px;border-radius:8px;font-size:15px;font-weight:600;margin-bottom:8px;">
+              View My Orders →
+            </a>
+        """;
+
+        return $"""
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;">
+              <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+
+                <div style="background:{headerColor};padding:28px 32px;text-align:center;">
+                  <h1 style="color:#fff;margin:0;font-size:24px;letter-spacing:-0.5px;">NovaCare</h1>
+                  <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:13px;">Pharmacy Management System</p>
+                </div>
+
+                <div style="padding:32px;">
+                  <p style="margin:0 0 16px;color:#1a1a1a;font-size:15px;">Hi <strong>{customerName}</strong>,</p>
+
+                  <div style="background:{badgeColor};border:1px solid {badgeBorder};border-radius:8px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:12px;">
+                    <span style="font-size:20px;font-weight:700;color:{badgeText};">{statusIcon}</span>
+                    <p style="margin:0;font-size:14px;color:{badgeText};line-height:1.5;">
+                      Your order <strong>#{orderId}</strong> has been <strong>{statusLabel}</strong>.
+                    </p>
+                  </div>
+
+                  <table style="width:100%;border-collapse:collapse;margin-bottom:16px;background:#f9fafb;border-radius:8px;overflow:hidden;">
+                    <thead>
+                      <tr style="background:#f3f4f6;">
+                        <th style="padding:10px 12px;font-size:12px;color:#6b7280;text-align:left;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Medicine</th>
+                        <th style="padding:10px 12px;font-size:12px;color:#6b7280;text-align:center;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Qty</th>
+                        <th style="padding:10px 12px;font-size:12px;color:#6b7280;text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {itemRows}
+                    </tbody>
+                    <tfoot>
+                      <tr style="background:#f3f4f6;">
+                        <td colspan="2" style="padding:10px 12px;font-size:13px;font-weight:700;color:#111827;">Total</td>
+                        <td style="padding:10px 12px;font-size:14px;font-weight:700;color:{headerColor};text-align:right;">RWF {totalAmount:N0}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+
+                  <p style="margin:0 0 20px;font-size:13px;color:#6b7280;">
+                    <strong>Branch:</strong> {branchName} &nbsp;·&nbsp;
+                    <strong>Order Date:</strong> {DateTime.UtcNow:MMM dd, yyyy}
+                  </p>
+
+                  {reasonBlock}
+                  {ctaBlock}
+                </div>
+
+                <div style="padding:16px 32px;background:#f9f9f9;border-top:1px solid #eee;text-align:center;">
+                  <p style="margin:0;font-size:12px;color:#999;">This is an automated message from NovaCare. Please do not reply directly to this email.</p>
+                </div>
+              </div>
+            </body>
+            </html>
+        """;
+    }
 
     private static string BuildOtpHtml(string firstName, string otpCode) => $"""
         <!DOCTYPE html>
