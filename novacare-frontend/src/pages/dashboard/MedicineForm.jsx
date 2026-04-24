@@ -11,7 +11,7 @@ const CATEGORIES = ['Antibiotics', 'Pain Relief', 'Cardiovascular', 'Diabetes', 
 const resolvePreview = (path) => {
   if (!path) return '';
   if (path.startsWith('http')) return path;
-  if (path.startsWith('/uploads/')) return `http://localhost:5232${path}`;
+  if (path.startsWith('/uploads/')) return `${import.meta.env.VITE_API_URL}${path}`;
   return path;
 };
 

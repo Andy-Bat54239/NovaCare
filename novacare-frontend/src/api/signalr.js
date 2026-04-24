@@ -7,7 +7,7 @@ export function getConnection() {
   if (connection) return connection;
 
   connection = new signalR.HubConnectionBuilder()
-    .withUrl('http://localhost:5232/hubs/chat', {
+    .withUrl(`${import.meta.env.VITE_API_URL}/hubs/chat`, {
       accessTokenFactory: () => {
         const u = JSON.parse(localStorage.getItem('novacare_user') || 'null');
         return u?.token ?? '';

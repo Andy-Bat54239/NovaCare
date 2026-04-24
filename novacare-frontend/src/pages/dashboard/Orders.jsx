@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getOrders, updateOrderStatus, uploadPrescriptionForItem } from '../../api/orders';
 import { ChevronDown, ChevronUp, Check, X, FileText, Image, ZoomIn, Download, AlertCircle, RefreshCw, Upload } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5232';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 // Prescription Viewer Modal
 function PrescriptionModal({ order, item, onClose }) {

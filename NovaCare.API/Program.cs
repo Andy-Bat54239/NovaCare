@@ -65,11 +65,22 @@ builder.Services.AddControllers()
     });
 
 // ── CORS — allow React frontend ───────────────────────────────────
+// FRONTEND_URL env var is set in production (e.g. https://novacare.vercel.app).
+// Falls back to the three Vite dev-server ports for local development.
+var frontendUrl = builder.Configuration["FRONTEND_URL"];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("NovaCarePolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175")
+        var origins = new List<string>
+        {
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175",
+        };
+        if (!string.IsNullOrEmpty(frontendUrl)) origins.Add(frontendUrl);
+
+        policy.WithOrigins([.. origins])
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

@@ -53,7 +53,7 @@ export default function MedicineImage({ medicine, size = 'md', className = '' })
   const config = categoryConfig[medicine.category] || { gradient: ['#64748b', '#475569'], icon: '💊' };
   const rawPath = medicine.imagePath || medicine.image;
   // Paths under /uploads/ are served by the backend; public seed paths stay as-is.
-  const imageSrc = rawPath?.startsWith('/uploads/') ? `http://localhost:5232${rawPath}` : rawPath;
+  const imageSrc = rawPath?.startsWith('/uploads/') ? `${import.meta.env.VITE_API_URL}${rawPath}` : rawPath;
   const hasImage = imageSrc && !imgError;
 
   const sizes = {
