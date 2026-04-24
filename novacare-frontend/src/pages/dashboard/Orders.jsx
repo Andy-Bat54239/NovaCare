@@ -190,7 +190,7 @@ export default function Orders() {
               const rxItems = getPrescriptionItems(order);
               const allRxItems = getRxItems(order);
               const hasRx = allRxItems.length > 0 || rxItems.length > 0 || order.hasPrescription;
-              const branchName = order.branch?.name || `Branch #${order.branchId}`;
+              const branchName = order.branchName || `Branch #${order.branchId}`;
 
               return (
                 <React.Fragment key={order.id}>

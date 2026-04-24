@@ -85,9 +85,7 @@ export default function Sales() {
               <tr><td colSpan={7} className="text-center text-muted" style={{ padding: 40 }}>No sales found</td></tr>
             ) : paginated.map(sale => {
               const isExpanded = expandedId === sale.id;
-              const customerName = sale.customer
-                ? sale.customer.name
-                : sale.customerId ? `Customer #${sale.customerId}` : null;
+              const customerName = sale.customerName || (sale.customerId ? `Customer #${sale.customerId}` : null);
               return (
                 <React.Fragment key={sale.id}>
                   <tr onClick={() => setExpandedId(isExpanded ? null : sale.id)} style={{ cursor: 'pointer' }}>

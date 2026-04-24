@@ -508,7 +508,7 @@ function PharmacistDashboard({ stats, salesChartData, mySales, navigate }) {
 
 // ─── Main Dashboard Component ───────────────────────────────────────
 export default function Dashboard() {
-  const { currentUser, getRoleName } = useAuth();
+  const { currentUser, getRoleName, logout } = useAuth();
   const navigate = useNavigate();
 
   const [stats, setStats] = useState({});
@@ -529,6 +529,8 @@ export default function Dashboard() {
     if (!currentUser) return;
     setLoading(true);
     setError(null);
+
+    // ── Step 1: primary data — stats + chart (must succeed) ──────────────
     try {
       const [statsData, chartRaw] = await Promise.all([
         getDashboardStats(),
@@ -540,7 +542,20 @@ export default function Dashboard() {
         revenue: d.revenue,
         count: d.count,
       })));
+    } catch (err) {
+      console.error('Dashboard stats error:', err);
+      const status = err?.response?.status;
+      if (status === 401) {
+        setError('Your session has expired. Please log out and log back in.');
+      } else {
+        setError('Failed to load dashboard data. Please try again.');
+      }
+      setLoading(false);
+      return;
+    }
 
+    // ── Step 2: secondary data — tables / charts (fail gracefully) ────────
+    try {
       if (currentUser.role === 1) {
         const [salesData, ordersData, usersData] = await Promise.all([
           getSales(),
@@ -566,8 +581,9 @@ export default function Dashboard() {
         setRecentSales((salesData || []).filter(s => s.userId === currentUser.id));
       }
     } catch (err) {
-      console.error('Dashboard load error:', err);
-      setError('Failed to load dashboard data. Please try again.');
+      console.error('Dashboard secondary data error:', err);
+      // Don't block the page — stats already loaded; show a soft warning
+      setError('Some dashboard sections could not load. Retry to refresh.');
     } finally {
       setLoading(false);
     }
@@ -601,11 +617,19 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', marginBottom: 16, color: '#dc2626' }}>
-          {error}
-          <button onClick={loadData} style={{ marginLeft: 12, background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>
-            Retry
-          </button>
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', marginBottom: 16, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ flex: 1 }}>{error}</span>
+          {error.includes('session') ? (
+            <button onClick={() => { logout(); navigate('/login'); }}
+              style={{ background: 'none', border: '1px solid #dc2626', borderRadius: 6, color: '#dc2626', cursor: 'pointer', fontWeight: 600, padding: '4px 12px', fontSize: '0.85rem' }}>
+              Log Out
+            </button>
+          ) : (
+            <button onClick={loadData}
+              style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>
+              Retry
+            </button>
+          )}
         </div>
       )}
 
