@@ -455,6 +455,11 @@ h4 { font-size: 1.125rem; }
   width: 100%;
 }
 
+/* --- Sidebar close button (desktop: hidden; mobile: shown via responsive rules) --- */
+.sidebar-close-btn {
+  display: none;
+}
+
 /* --- Mobile Sidebar --- */
 .sidebar-overlay {
   display: none;
@@ -2825,4 +2830,263 @@ h4 { font-size: 1.125rem; }
 @media (max-width: 768px) {
   .customer-desktop-nav { display: none !important; }
   .customer-hamburger { display: flex !important; }
+}
+
+/* ============================================
+   RESPONSIVE — Tablet (≤ 1024px)
+   ============================================ */
+@media (max-width: 1024px) {
+  /* Charts: minmax(400px) overflows on tablets → force single column */
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Topbar: tighten padding */
+  .topbar {
+    padding: 0 20px;
+  }
+
+  /* Logout button: hide text label, keep icon */
+  .topbar-logout span {
+    display: none;
+  }
+  .topbar-logout {
+    padding: 8px;
+    gap: 0;
+    min-width: 36px;
+    justify-content: center;
+  }
+
+  /* Page content: slightly tighter */
+  .page-content {
+    padding: 24px 20px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE — Mobile additions (≤ 768px)
+   The sidebar/hamburger toggle is already here;
+   these add component-level fixes.
+   ============================================ */
+@media (max-width: 768px) {
+  /* Page header: stack title + action button vertically */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Search bar: fill full width */
+  .search-input-wrapper {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Filter tabs: horizontal scroll instead of wrap */
+  .filter-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+
+  /* Tabs row (Chats, Reports etc.): scrollable */
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { white-space: nowrap; }
+
+  /* Pagination: stack count above buttons */
+  .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* Stat cards: allow smaller min-width so 2 fit on phones */
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
+  .stat-card {
+    padding: 18px 14px;
+  }
+  .stat-card-info h3 {
+    font-size: 1.3rem;
+  }
+
+  /* Login card: reduce padding */
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  /* Shop hero: smaller headings */
+  .shop-hero {
+    padding: 56px 20px;
+  }
+  .shop-hero h1 {
+    font-size: 2.25rem;
+  }
+  .shop-hero p {
+    font-size: 1rem;
+  }
+
+  /* About page: remove negative margin that overlaps on mobile */
+  .about-stats {
+    margin-top: 24px;
+  }
+  .about-hero h1 {
+    font-size: 2rem;
+  }
+
+  /* Settings: tighter padding */
+  .settings-section {
+    padding: 20px 16px;
+  }
+
+  /* Medicine detail: sidebar shows close button */
+  .sidebar-close-btn {
+    display: flex !important;
+  }
+
+  /* Modal: full-bleed on very narrow screens */
+  .modal-overlay {
+    padding: 12px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE — Small phones (≤ 480px)
+   ============================================ */
+@media (max-width: 480px) {
+  /* Topbar: minimal side padding */
+  .topbar {
+    padding: 0 12px;
+  }
+
+  /* Page content: tightest padding */
+  .page-content {
+    padding: 14px 12px;
+  }
+
+  /* Page header title: smaller on phones */
+  .page-header h1 {
+    font-size: 1.35rem;
+  }
+
+  /* Stat cards: 2-column grid on phones */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .stat-card {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+  .stat-card-info h3 {
+    font-size: 1.15rem;
+  }
+  .stat-card-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* Form rows: always single column on phones */
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* Filters bar: stack search + selects vertically */
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-select {
+    width: 100%;
+  }
+
+  /* Tables: tighter cell padding */
+  .data-table th,
+  .data-table td {
+    padding: 10px 10px;
+    font-size: 0.82rem;
+  }
+
+  /* Shop hero: compact */
+  .shop-hero {
+    padding: 40px 16px;
+  }
+  .shop-hero h1 {
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+  }
+
+  /* Product cards: 2 per row (they use minmax(280px) which gives 1 on phones;
+     override to show 2 compact cards) */
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .product-card-image {
+    height: 120px;
+    font-size: 2rem;
+  }
+  .product-card-body {
+    padding: 12px;
+  }
+  .product-card-body h3 {
+    font-size: 0.82rem;
+  }
+  .product-card-body .generic-name,
+  .product-card-body .strength-form {
+    font-size: 0.72rem;
+  }
+  .product-price {
+    font-size: 1rem;
+  }
+
+  /* Login card: minimal padding */
+  .login-card {
+    padding: 24px 16px;
+  }
+
+  /* Medicine detail meta: single column */
+  .medicine-detail-meta {
+    grid-template-columns: 1fr;
+  }
+
+  /* Medicine detail actions: wrap on small screens */
+  .medicine-detail-actions {
+    flex-wrap: wrap;
+  }
+
+  /* Cart item: wrap image to top */
+  .cart-item {
+    flex-wrap: wrap;
+  }
+
+  /* POS medicine grid: 2 columns on phones */
+  .medicine-mini-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Category grid: 2 per row */
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Page header button: full width so it doesn't crowd the title */
+  .page-header > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Shop section: tighter vertical padding */
+  .shop-section {
+    padding: 40px 16px;
+  }
 }

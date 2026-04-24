@@ -112,7 +112,7 @@ export default function DashboardLayout() {
         <div className="sidebar-brand">
           <div className="sidebar-brand-icon">NC</div>
           <div className="sidebar-brand-text">Nova<span>Care</span></div>
-          <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)} style={{ display: 'none', marginLeft: 'auto', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
+          <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
             <X size={20} />
           </button>
         </div>

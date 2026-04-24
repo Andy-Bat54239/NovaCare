@@ -4,6 +4,7 @@ import { getMedicines } from '../../api/medicines';
 import { getBatches } from '../../api/batches';
 import { getBranches } from '../../api/branches';
 import { useCart } from '../../context/CartContext';
+import MedicineImage from '../../components/MedicineImage';
 import { Search, Package, ShoppingCart, Plus, Minus, FileImage, X, Upload } from 'lucide-react';
 
 export default function CustomerMedicines() {
@@ -121,6 +122,14 @@ export default function CustomerMedicines() {
               border: '1px solid var(--border-color)',
               borderRadius: 14, padding: '20px 24px',
             }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                {/* Medicine image thumbnail */}
+                <div style={{ width: 88, flexShrink: 0 }}>
+                  <MedicineImage medicine={med} size="sm" />
+                </div>
+
+                {/* Card body */}
+                <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap', gap: 12 }}>
                 <div>
                   <h3 style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: 4 }}>{med.brandName}</h3>
@@ -205,6 +214,8 @@ export default function CustomerMedicines() {
                   )}
                 </div>
               )}
+                </div> {/* end card body */}
+              </div> {/* end image + body row */}
             </div>
           );
         })}
