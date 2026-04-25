@@ -9,6 +9,8 @@ public class Order
     public string CustomerPhone { get; set; } = string.Empty;
     public int BranchId { get; set; }
     public string Status { get; set; } = "Pending";
+    public string PaymentMethod { get; set; } = "Cash";
+    public string? PaymentReference { get; set; }
     public decimal TotalAmount { get; set; }
     public DateTime OrderDate { get; set; } = DateTime.UtcNow;
     public int? ApprovedById { get; set; }
