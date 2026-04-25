@@ -602,7 +602,10 @@ function TeamChatPanel({ currentUser, connectionRef }) {
 // ── Main Chats page ─────────────────────────────────────────────────────────
 export default function Chats() {
   const { currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState('customers');
+  const isAdmin = currentUser?.role === 1;
+
+  // Admins only have Team Chat — they don't handle customer conversations
+  const [activeTab, setActiveTab] = useState(isAdmin ? 'team' : 'customers');
   const connectionRef = useRef(null);
 
   useEffect(() => {
@@ -615,16 +618,18 @@ export default function Chats() {
   }, []);
 
   const tabs = [
-    { key: 'customers', label: 'Customer Chats', icon: MessageSquare },
-    { key: 'team',      label: 'Team Chat',       icon: Users },
-  ];
+    !isAdmin && { key: 'customers', label: 'Customer Chats', icon: MessageSquare },
+    { key: 'team', label: 'Team Chat', icon: Users },
+  ].filter(Boolean);
 
   return (
     <div className="dashboard-page">
       <div className="page-header">
         <div>
           <h1>Chats</h1>
-          <p className="page-header-subtitle">Customer conversations and internal team messaging</p>
+          <p className="page-header-subtitle">
+            {isAdmin ? 'Internal team messaging' : 'Customer conversations and internal team messaging'}
+          </p>
         </div>
       </div>
 
