@@ -171,6 +171,7 @@ function SectionHeader({ title, action, actionLabel, onAction }) {
         alignItems: "center",
         width: "100%",
         marginBottom: 16,
+        gap: 32,
       }}
     >
       <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700 }}>
@@ -190,6 +191,7 @@ function SectionHeader({ title, action, actionLabel, onAction }) {
             alignItems: "center",
             gap: 4,
             whiteSpace: "nowrap",
+            flexShrink: 0,
           }}
         >
           {actionLabel} <ArrowRight size={14} />
@@ -266,7 +268,13 @@ function AdminDashboard({
   allUsers,
   navigate,
   batches,
+  branches,
 }) {
+  const [orderBranchFilter, setOrderBranchFilter] = useState("");
+
+  const filteredBranchOrders = orderBranchFilter
+    ? allOrders.filter((o) => String(o.branchId) === orderBranchFilter)
+    : allOrders;
   const usersByRole = [
     {
       name: "Admin",
@@ -527,33 +535,57 @@ function AdminDashboard({
 
         <div className="card">
           <div className="card-header">
-            <SectionHeader
-              title="Recent Orders"
-              action
-              actionLabel="View All"
-              onAction={() => navigate("/dashboard/orders")}
-            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 12,
+              }}
+            >
+              <SectionHeader
+                title="Recent Branch Orders"
+                action
+                actionLabel="View All"
+                onAction={() => navigate("/dashboard/orders")}
+              />
+              {branches.length > 0 && (
+                <select
+                  className="filter-select"
+                  value={orderBranchFilter}
+                  onChange={(e) => setOrderBranchFilter(e.target.value)}
+                  style={{ minWidth: 160 }}
+                >
+                  <option value="">All Branches</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={String(b.id)}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
           <div style={{ overflowX: "auto" }}>
-            {allOrders.length === 0 ? (
-              <EmptyState
-                icon={ClipboardList}
-                message="No orders received yet"
-              />
+            {filteredBranchOrders.length === 0 ? (
+              <EmptyState icon={ClipboardList} message="No orders yet" />
             ) : (
               <table className="data-table">
                 <thead>
                   <tr>
                     <th>Customer</th>
+                    <th>Branch</th>
                     <th>Date</th>
                     <th>Amount</th>
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {allOrders.slice(0, 5).map((order) => (
+                  {filteredBranchOrders.slice(0, 5).map((order) => (
                     <tr key={order.id}>
                       <td style={{ fontWeight: 600 }}>{order.customerName}</td>
+                      <td>{order.branchName || `Branch #${order.branchId}`}</td>
                       <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                       <td style={{ fontWeight: 600, color: "var(--primary)" }}>
                         RWF {Math.round(order.totalAmount).toLocaleString()}
@@ -586,7 +618,10 @@ function ManagerDashboard({
   branchTeam,
   branchBatches,
   navigate,
+  branches,
 }) {
+  const [orderBranchFilter, setOrderBranchFilter] = useState("");
+
   const medicines = {};
   branchBatches.forEach((b) => {
     if (b.medicine) medicines[b.medicineId] = b.medicine;
@@ -602,6 +637,10 @@ function ManagerDashboard({
     else acc.push({ name: s.paymentMethod || "Unknown", value: 1 });
     return acc;
   }, []);
+
+  const filteredBranchOrders = orderBranchFilter
+    ? branchOrders.filter((o) => String(o.branchId) === orderBranchFilter)
+    : branchOrders;
 
   return (
     <>
@@ -623,7 +662,7 @@ function ManagerDashboard({
         />
         <StatCard
           icon={ClipboardList}
-          value={stats.branchOrders || 0}
+          value={branchOrders.filter((o) => o.status === "Pending").length || 0}
           label="Pending Orders"
           color="#f59e0b"
         />
@@ -806,30 +845,57 @@ function ManagerDashboard({
       <div className="charts-grid">
         <div className="card">
           <div className="card-header">
-            <SectionHeader
-              title="Recent Branch Orders"
-              action
-              actionLabel="View All"
-              onAction={() => navigate("/dashboard/orders")}
-            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 12,
+              }}
+            >
+              <SectionHeader
+                title="Recent Branch Orders"
+                action
+                actionLabel="View All"
+                onAction={() => navigate("/dashboard/orders")}
+              />
+              {branches.length > 0 && (
+                <select
+                  className="filter-select"
+                  value={orderBranchFilter}
+                  onChange={(e) => setOrderBranchFilter(e.target.value)}
+                  style={{ minWidth: 160 }}
+                >
+                  <option value="">All Branches</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={String(b.id)}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
           <div style={{ overflowX: "auto" }}>
-            {branchOrders.length === 0 ? (
+            {filteredBranchOrders.length === 0 ? (
               <EmptyState icon={ClipboardList} message="No orders yet" />
             ) : (
               <table className="data-table">
                 <thead>
                   <tr>
                     <th>Customer</th>
+                    <th>Branch</th>
                     <th>Date</th>
                     <th>Amount</th>
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {branchOrders.slice(0, 5).map((order) => (
+                  {filteredBranchOrders.slice(0, 5).map((order) => (
                     <tr key={order.id}>
                       <td style={{ fontWeight: 600 }}>{order.customerName}</td>
+                      <td>{order.branchName || `Branch #${order.branchId}`}</td>
                       <td>{new Date(order.orderDate).toLocaleDateString()}</td>
                       <td style={{ fontWeight: 600, color: "var(--primary)" }}>
                         RWF {Math.round(order.totalAmount).toLocaleString()}
@@ -1164,9 +1230,7 @@ export default function Dashboard() {
           ],
         );
         setRecentSales(salesData || []);
-        setAllOrders(
-          (ordersData || []).filter((o) => o.branchId === currentUser.branchId),
-        );
+        setAllOrders(ordersData || []);
         setAllUsers(
           (usersData || []).filter(
             (u) => u.branchId === currentUser.branchId && u.isActive,
@@ -1297,6 +1361,12 @@ export default function Dashboard() {
               allOrders={allOrders}
               allUsers={allUsers}
               navigate={navigate}
+              branches={allUsers
+                .map((u) => u.branch)
+                .filter(
+                  (b, i, arr) =>
+                    b && arr.findIndex((x) => x?.id === b?.id) === i,
+                )}
             />
           )}
           {currentUser?.role === 2 && (
@@ -1308,7 +1378,12 @@ export default function Dashboard() {
               branchTeam={allUsers}
               branchBatches={branchBatches}
               navigate={navigate}
-              currentUser={currentUser}
+              branches={allUsers
+                .map((u) => u.branch)
+                .filter(
+                  (b, i, arr) =>
+                    b && arr.findIndex((x) => x?.id === b?.id) === i,
+                )}
             />
           )}
           {currentUser?.role === 3 && (

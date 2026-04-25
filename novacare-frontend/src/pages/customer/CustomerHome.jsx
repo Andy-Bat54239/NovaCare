@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
-  MessageSquare,
   Package,
   ClipboardList,
   ShoppingCart,
@@ -82,106 +81,11 @@ export default function CustomerHome() {
             marginBottom: 6,
           }}
         >
-          Welcome back, {currentUser?.firstName}! 👋
+          Welcome back, {currentUser?.firstName}!
         </h1>
         <p style={{ color: "var(--text-muted)", fontSize: "1rem" }}>
           How can we help you today?
         </p>
-      </div>
-
-      {/* Quick-action cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 20,
-          marginBottom: 40,
-        }}
-      >
-        {[
-          {
-            to: "/customer/chat",
-            icon: MessageSquare,
-            label: "Chat with Staff",
-            desc: "Ask questions or get support from our pharmacy team",
-            color: "#6366f1",
-          },
-          {
-            to: "/customer/medicines",
-            icon: Package,
-            label: "Browse Medicines",
-            desc: "Check availability and stock across all branches",
-            color: "#0d9488",
-          },
-          {
-            to: "/customer/orders",
-            icon: ClipboardList,
-            label: "My Orders",
-            desc: "Track your online order history and status",
-            color: "#f59e0b",
-          },
-        ].map(({ to, icon, label, desc, color }) => {
-          const Icon = icon;
-          return (
-            <Link key={label} to={to} style={{ textDecoration: "none" }}>
-              <div
-                style={{
-                  background: "var(--card-bg, #fff)",
-                  border: "1px solid var(--border-color)",
-                  borderRadius: 16,
-                  padding: 24,
-                  transition: "all 0.2s",
-                  cursor: "pointer",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = color;
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.08)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = "var(--border-color)";
-                  e.currentTarget.style.transform = "none";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              >
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 12,
-                    background: `${color}15`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: 16,
-                  }}
-                >
-                  <Icon size={24} color={color} />
-                </div>
-              <h3
-                style={{
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  color: "var(--text-primary)",
-                  marginBottom: 6,
-                }}
-              >
-                {label}
-              </h3>
-              <p
-                style={{
-                  fontSize: "0.85rem",
-                  color: "var(--text-muted)",
-                  margin: 0,
-                  lineHeight: 1.5,
-                }}
-              >
-                {desc}
-              </p>
-              </div>
-            </Link>
-          );
-        })}
       </div>
 
       {loading ? (
@@ -240,73 +144,78 @@ export default function CustomerHome() {
             ].map(({ label, value, sub, color, icon, to }) => {
               const Icon = icon;
               return (
-              <Link key={label} to={to} style={{ textDecoration: "none" }}>
-                <div
-                  style={{
-                    background: "var(--card-bg, #fff)",
-                    border: "1px solid var(--border-color)",
-                    borderRadius: 14,
-                    padding: "20px 22px",
-                    transition: "box-shadow 0.15s",
-                  }}
-                  onMouseOver={(e) =>
-                    (e.currentTarget.style.boxShadow =
-                      "0 4px 16px rgba(0,0,0,0.08)")
-                  }
-                  onMouseOut={(e) => (e.currentTarget.style.boxShadow = "none")}
-                >
+                <Link key={label} to={to} style={{ textDecoration: "none" }}>
                   <div
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: 12,
+                      background: "var(--card-bg, #fff)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: 14,
+                      padding: "20px 22px",
+                      transition: "box-shadow 0.15s",
                     }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.boxShadow =
+                        "0 4px 16px rgba(0,0,0,0.08)")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.boxShadow = "none")
+                    }
                   >
-                    <span
-                      style={{
-                        fontSize: "0.82rem",
-                        fontWeight: 600,
-                        color: "var(--text-muted)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.04em",
-                      }}
-                    >
-                      {label}
-                    </span>
                     <div
                       style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: 9,
-                        background: `${color}15`,
                         display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: 12,
                       }}
                     >
-                      <Icon size={17} color={color} />
+                      <span
+                        style={{
+                          fontSize: "0.82rem",
+                          fontWeight: 600,
+                          color: "var(--text-muted)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        {label}
+                      </span>
+                      <div
+                        style={{
+                          width: 34,
+                          height: 34,
+                          borderRadius: 9,
+                          background: `${color}15`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Icon size={17} color={color} />
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "1.6rem",
+                        fontWeight: 800,
+                        color: "var(--text-primary)",
+                        marginBottom: 4,
+                        lineHeight: 1,
+                      }}
+                    >
+                      {value}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      {sub}
                     </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "1.6rem",
-                      fontWeight: 800,
-                      color: "var(--text-primary)",
-                      marginBottom: 4,
-                      lineHeight: 1,
-                    }}
-                  >
-                    {value}
-                  </div>
-                  <div
-                    style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}
-                  >
-                    {sub}
-                  </div>
-                </div>
-              </Link>
-            );
+                </Link>
+              );
             })}
           </div>
 
