@@ -1,7 +1,7 @@
-import * as signalR from '@microsoft/signalr';
+import * as signalR from "@microsoft/signalr";
 
 let connection = null;
-let startingPromise = null; // prevent concurrent start() calls
+let startPromise = null;
 
 export function getConnection() {
   if (connection) return connection;
@@ -9,26 +9,25 @@ export function getConnection() {
   connection = new signalR.HubConnectionBuilder()
     .withUrl(`${import.meta.env.VITE_API_URL}/hubs/chat`, {
       accessTokenFactory: () => {
-        const u = JSON.parse(localStorage.getItem('novacare_user') || 'null');
-        return u?.token ?? '';
+        const u = JSON.parse(localStorage.getItem("novacare_user") || "null");
+        return u?.token ?? "";
       },
     })
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Warning)
     .build();
 
-  // Reset the singleton if the hub permanently disconnects
   connection.onclose(() => {
     connection = null;
-    startingPromise = null;
+    startPromise = null;
   });
 
   return connection;
 }
 
+/** Wait until the connection is actually Connected before returning it. */
 export function startConnection() {
-  // If already starting, return the same promise — prevents double-start
-  if (startingPromise) return startingPromise;
+  if (startPromise) return startPromise;
 
   const conn = getConnection();
 
@@ -36,21 +35,42 @@ export function startConnection() {
     return Promise.resolve(conn);
   }
 
-  if (conn.state === signalR.HubConnectionState.Disconnected) {
-    startingPromise = conn.start()
-      .then(() => { startingPromise = null; return conn; })
-      .catch((err) => { startingPromise = null; throw err; });
-    return startingPromise;
-  }
+  startPromise = new Promise((resolve, reject) => {
+    const check = () => {
+      if (conn.state === signalR.HubConnectionState.Connected) {
+        startPromise = null;
+        resolve(conn);
+        return;
+      }
+      if (conn.state === signalR.HubConnectionState.Disconnected) {
+        conn
+          .start()
+          .then(() => {
+            startPromise = null;
+            resolve(conn);
+          })
+          .catch((err) => {
+            startPromise = null;
+            reject(err);
+          });
+        return;
+      }
+      // Connecting or Reconnecting — poll briefly until ready
+      setTimeout(check, 100);
+    };
+    check();
+  });
 
-  // Connecting or Reconnecting — just return the connection, hub will be ready soon
-  return Promise.resolve(conn);
+  return startPromise;
 }
 
 export async function stopConnection() {
-  if (connection && connection.state !== signalR.HubConnectionState.Disconnected) {
+  if (
+    connection &&
+    connection.state !== signalR.HubConnectionState.Disconnected
+  ) {
     await connection.stop();
   }
   connection = null;
-  startingPromise = null;
+  startPromise = null;
 }

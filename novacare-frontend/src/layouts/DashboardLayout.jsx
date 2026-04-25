@@ -188,10 +188,6 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
-  const initials = currentUser
-    ? `${currentUser.firstName[0]}${currentUser.lastName[0]}`
-    : "??";
-
   return (
     <div className="dashboard-wrapper">
       <div
@@ -348,7 +344,10 @@ export default function DashboardLayout() {
               data-profile-dropdown
             >
               <button
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileDropdownOpen(!profileDropdownOpen);
+                }}
                 style={{
                   background: "none",
                   border: "none",
@@ -362,10 +361,10 @@ export default function DashboardLayout() {
                   color: "var(--text-primary)",
                 }}
                 onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = "var(--bg-hover)")
+                  (e.currentTarget.style.backgroundColor = "var(--bg-hover)")
                 }
                 onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = "transparent")
+                  (e.currentTarget.style.backgroundColor = "transparent")
                 }
               >
                 <div
