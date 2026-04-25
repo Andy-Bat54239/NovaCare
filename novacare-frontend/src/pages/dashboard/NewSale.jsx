@@ -30,6 +30,7 @@ export default function NewSale() {
   const [cart, setCart] = useState([]);
   const [customerId, setCustomerId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Cash");
+  const [paymentReference, setPaymentReference] = useState("");
   const [branchId, setBranchId] = useState(
     String(currentUser?.branchId || "1"),
   );
@@ -141,6 +142,7 @@ export default function NewSale() {
         userId: currentUser.id,
         customerId: customerId ? Number(customerId) : null,
         paymentMethod,
+        paymentReference: paymentMethod !== "Cash" ? paymentReference : null,
         totalAmount: total,
         items: cart.map((i) => ({
           medicineId: i.medicineId,
@@ -380,12 +382,49 @@ export default function NewSale() {
                 className="filter-select w-full"
                 style={{ width: "100%" }}
                 value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setPaymentMethod(val);
+                  if (val === "Cash") setPaymentReference("");
+                }}
               >
                 <option>Cash</option>
                 <option>Card</option>
                 <option>Mobile</option>
               </select>
+
+              {paymentMethod === "Card" && (
+                <div style={{ marginTop: 8 }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>
+                    Card Number <span style={{ color: "#dc2626" }}>*</span>
+                  </label>
+                  <input
+                    className="form-input"
+                    placeholder="XXXX XXXX XXXX XXXX"
+                    value={paymentReference}
+                    onChange={(e) => setPaymentReference(e.target.value)}
+                    required
+                    style={{ width: "100%", marginTop: 4 }}
+                  />
+                </div>
+              )}
+
+              {paymentMethod === "Mobile" && (
+                <div style={{ marginTop: 8 }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>
+                    Mobile Money Phone{" "}
+                    <span style={{ color: "#dc2626" }}>*</span>
+                  </label>
+                  <input
+                    className="form-input"
+                    placeholder="+250 7XX XXX XXX"
+                    value={paymentReference}
+                    onChange={(e) => setPaymentReference(e.target.value)}
+                    required
+                    style={{ width: "100%", marginTop: 4 }}
+                  />
+                </div>
+              )}
             </div>
             <div className="pos-cart-total">
               <span>Total</span>
@@ -394,7 +433,11 @@ export default function NewSale() {
             <button
               className="btn btn-primary w-full"
               style={{ width: "100%" }}
-              disabled={cart.length === 0 || submitting}
+              disabled={
+                cart.length === 0 ||
+                submitting ||
+                (paymentMethod !== "Cash" && !paymentReference.trim())
+              }
               onClick={completeSale}
             >
               {submitting ? "Processing..." : "Complete Sale"}
