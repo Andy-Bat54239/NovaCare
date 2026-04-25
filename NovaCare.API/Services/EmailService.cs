@@ -13,6 +13,8 @@ public interface IEmailService
         string status, string branchName, decimal totalAmount,
         IEnumerable<(string MedicineName, int Quantity, decimal UnitPrice)> items,
         string? reason = null);
+    Task SendContactReplyEmailAsync(string toEmail, string senderName, string originalSubject,
+        string originalMessage, string replyText);
 }
 
 public class EmailService(IConfiguration config, ILogger<EmailService> logger) : IEmailService
@@ -52,6 +54,49 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger) :
                 : $"NovaCare — Update on Your Order #{orderId}",
             html: BuildOrderStatusHtml(customerName, orderId, status, branchName, totalAmount, items, reason)
         );
+
+    public Task SendContactReplyEmailAsync(string toEmail, string senderName, string originalSubject,
+        string originalMessage, string replyText) =>
+        SendAsync(
+            to: toEmail,
+            subject: $"Re: {originalSubject} — NovaCare",
+            html: BuildContactReplyHtml(senderName, originalSubject, originalMessage, replyText)
+        );
+
+    private static string BuildContactReplyHtml(string name, string subject, string originalMessage, string replyText) => $"""
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9fafb;padding:24px">
+          <div style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+            <div style="background:linear-gradient(135deg,#0d9488,#0f766e);padding:28px 32px">
+              <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700">NovaCare Pharmacy</h1>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.85);font-size:14px">Response to your message</p>
+            </div>
+            <div style="padding:32px">
+              <p style="margin:0 0 16px;font-size:15px;color:#374151">Dear <strong>{name}</strong>,</p>
+              <p style="margin:0 0 24px;font-size:14px;color:#6b7280">
+                Thank you for reaching out to us. Here is our response to your message regarding
+                <strong>"{subject}"</strong>:
+              </p>
+              <div style="background:#f0fdfa;border-left:4px solid #0d9488;border-radius:0 8px 8px 0;padding:18px 20px;margin-bottom:28px">
+                <p style="margin:0;font-size:15px;color:#0f172a;line-height:1.7">{replyText}</p>
+              </div>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+                <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em">Your original message</p>
+                <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6;font-style:italic">"{originalMessage}"</p>
+              </div>
+              <p style="margin:0 0 24px;font-size:14px;color:#6b7280;line-height:1.6">
+                If you have any further questions, feel free to visit our website or contact us again.
+              </p>
+              <p style="margin:0;font-size:14px;color:#374151">
+                Warm regards,<br/>
+                <strong>The NovaCare Pharmacy Team</strong>
+              </p>
+            </div>
+            <div style="padding:16px 32px;background:#f1f5f9;border-top:1px solid #e2e8f0;text-align:center">
+              <p style="margin:0;font-size:12px;color:#94a3b8">© 2026 NovaCare Pharmacy. This is a reply to your contact form submission.</p>
+            </div>
+          </div>
+        </div>
+        """;
 
     private async Task SendAsync(string to, string subject, string html)
     {

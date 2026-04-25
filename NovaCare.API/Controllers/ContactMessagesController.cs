@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NovaCare.API.Data;
 using NovaCare.API.Models;
+using NovaCare.API.Services;
 
 namespace NovaCare.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ContactMessagesController(AppDbContext db) : ControllerBase
+public class ContactMessagesController(AppDbContext db, IEmailService email) : ControllerBase
 {
     [HttpGet]
     [Authorize]
@@ -52,10 +53,20 @@ public class ContactMessagesController(AppDbContext db) : ControllerBase
     {
         var msg = await db.ContactMessages.FindAsync(id);
         if (msg is null) return NotFound();
+
         msg.ReplyText = request.ReplyText;
-        msg.Status = "Replied";
+        msg.Status    = "Replied";
         msg.RepliedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
+
+        await email.SendContactReplyEmailAsync(
+            toEmail:         msg.Email,
+            senderName:      msg.Name,
+            originalSubject: msg.Subject,
+            originalMessage: msg.Message,
+            replyText:       request.ReplyText
+        );
+
         return Ok(msg);
     }
 
