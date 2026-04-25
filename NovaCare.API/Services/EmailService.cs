@@ -113,6 +113,9 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger) :
         using var client = new SmtpClient();
         try
         {
+            logger.LogInformation("SMTP connecting to {Host}:{Port} UseSsl={UseSsl} From={From}",
+                s.Host, s.Port, s.UseSsl, s.FromEmail);
+
             await client.ConnectAsync(s.Host, s.Port, s.UseSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTlsWhenAvailable);
             if (!string.IsNullOrEmpty(s.Username))
                 await client.AuthenticateAsync(s.Username, s.Password);
@@ -122,8 +125,9 @@ public class EmailService(IConfiguration config, ILogger<EmailService> logger) :
         }
         catch (Exception ex)
         {
-            // Log but don't crash — email failure should not block user creation.
-            logger.LogError(ex, "Failed to send email to {Email}: {Subject}", to, subject);
+            // Log full details so Railway logs show exactly what failed
+            logger.LogError(ex, "SMTP FAILED — Host={Host} Port={Port} UseSsl={UseSsl} To={Email} Subject={Subject} Error={Message}",
+                s.Host, s.Port, s.UseSsl, to, subject, ex.Message);
         }
     }
 
