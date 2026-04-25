@@ -149,13 +149,51 @@ public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditSer
         // Non-admins can only update orders for their own branch
         if (role != 1 && order.BranchId != branchId) return Forbid();
 
-        order.Status = request.Status;
+        // On approval: check stock then apply FEFO deduction (same pattern as SalesController)
         if (request.Status == "Approved")
         {
-            var userId = int.Parse(User.FindFirst("sub")!.Value);
-            order.ApprovedById = userId;
+            foreach (var item in order.Items)
+            {
+                var available = await db.Batches
+                    .Where(b => b.MedicineId == item.MedicineId
+                             && b.BranchId   == order.BranchId
+                             && b.RemainingQuantity > 0
+                             && b.ExpiryDate > DateTime.UtcNow)
+                    .SumAsync(b => b.RemainingQuantity);
+
+                if (available < item.Quantity)
+                    return BadRequest(new
+                    {
+                        message = $"Insufficient stock for {item.Medicine?.BrandName ?? $"Medicine #{item.MedicineId}"}. " +
+                                  $"Available: {available}, Required: {item.Quantity}"
+                    });
+            }
+
+            // All items have enough stock — deduct FEFO
+            foreach (var item in order.Items)
+            {
+                var batches = await db.Batches
+                    .Where(b => b.MedicineId == item.MedicineId
+                             && b.BranchId   == order.BranchId
+                             && b.RemainingQuantity > 0
+                             && b.ExpiryDate > DateTime.UtcNow)
+                    .OrderBy(b => b.ExpiryDate)
+                    .ToListAsync();
+
+                var remaining = item.Quantity;
+                foreach (var batch in batches)
+                {
+                    if (remaining <= 0) break;
+                    var deduct = Math.Min(batch.RemainingQuantity, remaining);
+                    batch.RemainingQuantity -= deduct;
+                    remaining -= deduct;
+                }
+            }
+
+            order.ApprovedById = int.Parse(User.FindFirst("sub")!.Value);
         }
 
+        order.Status = request.Status;
         await db.SaveChangesAsync();
         await audit.LogAsync(request.Status, "Order", $"Order #{order.Id} — {order.CustomerName}");
 
