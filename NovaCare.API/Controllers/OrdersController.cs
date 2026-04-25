@@ -21,8 +21,8 @@ public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditSer
 
         var query = db.Orders.AsQueryable();
 
-        // Admins see all branches; everyone else sees only their branch
-        if (role != 1) query = query.Where(o => o.BranchId == branchId);
+        // Admins and Managers see all branches; Pharmacists see only their branch
+        if (role != 1 && role != 2) query = query.Where(o => o.BranchId == branchId);
 
         if (!string.IsNullOrEmpty(status)) query = query.Where(o => o.Status == status);
 
@@ -37,6 +37,8 @@ public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditSer
                 o.BranchId,
                 BranchName    = o.Branch.Name,
                 o.Status,
+                o.PaymentMethod,
+                o.PaymentReference,
                 o.TotalAmount,
                 o.OrderDate,
                 o.HasPrescription,
@@ -69,7 +71,7 @@ public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditSer
             {
                 o.Id, o.CustomerName, o.CustomerEmail, o.CustomerPhone,
                 o.BranchId, BranchName = o.Branch.Name,
-                o.Status, o.TotalAmount, o.OrderDate, o.HasPrescription,
+                o.Status, o.PaymentMethod, o.PaymentReference, o.TotalAmount, o.OrderDate, o.HasPrescription,
                 o.CustomerUserId, o.ApprovedById,
                 Items = o.Items.Select(i => new
                 {
@@ -90,6 +92,7 @@ public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditSer
         order.Id = 0;
         order.OrderDate = DateTime.UtcNow;
         order.Status = "Pending";
+        if (string.IsNullOrWhiteSpace(order.PaymentMethod)) order.PaymentMethod = "Cash";
 
         // Link to customer account if request is from a logged-in customer (role 4)
         var roleClaim = User.FindFirst("role")?.Value;
@@ -110,14 +113,32 @@ public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditSer
         var roleClaim = User.FindFirst("role")?.Value;
         if (roleClaim != "4") return Forbid();
         var userId = int.Parse(User.FindFirst("sub")!.Value);
-        var orders = await db.Orders
-            .Where(o => o.CustomerUserId == userId)
+
+        var customerEmail = await db.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.Email)
+            .FirstOrDefaultAsync();
+
+        var normalizedEmail = customerEmail?.Trim().ToLower();
+
+        // Include both account-linked orders and older/legacy orders matched by email.
+        var ordersQuery = db.Orders.Where(o => o.CustomerUserId == userId);
+        if (!string.IsNullOrWhiteSpace(normalizedEmail))
+        {
+            ordersQuery = db.Orders.Where(o =>
+                o.CustomerUserId == userId ||
+                (o.CustomerUserId == null &&
+                 o.CustomerEmail != null &&
+                 o.CustomerEmail.ToLower() == normalizedEmail));
+        }
+
+        var orders = await ordersQuery
             .OrderByDescending(o => o.OrderDate)
             .Select(o => new
             {
                 o.Id, o.CustomerName, o.CustomerEmail, o.CustomerPhone,
                 o.BranchId, BranchName = o.Branch.Name,
-                o.Status, o.TotalAmount, o.OrderDate, o.HasPrescription,
+                o.Status, o.PaymentMethod, o.PaymentReference, o.TotalAmount, o.OrderDate, o.HasPrescription,
                 o.CustomerUserId,
                 Items = o.Items.Select(i => new
                 {
