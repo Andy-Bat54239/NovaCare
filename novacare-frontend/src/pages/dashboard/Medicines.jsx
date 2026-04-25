@@ -1,18 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { getMedicines } from '../../api/medicines';
-import { getBatches } from '../../api/batches';
-import { Plus, Search, Edit, Eye, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { getMedicines } from "../../api/medicines";
+import { getBatches } from "../../api/batches";
+import { Plus, Search, Edit, Eye, RefreshCw } from "lucide-react";
 
 export default function Medicines() {
   const { hasPermission } = useAuth();
   const [medicines, setMedicines] = useState([]);
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [formFilter, setFormFilter] = useState('');
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [formFilter, setFormFilter] = useState("");
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -20,11 +20,14 @@ export default function Medicines() {
     const load = async () => {
       setLoading(true);
       try {
-        const [medsData, batchData] = await Promise.all([getMedicines(), getBatches()]);
-        setMedicines(medsData || []);
-        setBatches(batchData || []);
+        const [medsData, batchData] = await Promise.all([
+          getMedicines(),
+          getBatches(),
+        ]);
+        setMedicines(Array.isArray(medsData) ? medsData : []);
+        setBatches(Array.isArray(batchData) ? batchData : []);
       } catch (err) {
-        console.error('Failed to load medicines:', err);
+        console.error("Failed to load medicines:", err);
       } finally {
         setLoading(false);
       }
@@ -32,33 +35,63 @@ export default function Medicines() {
     load();
   }, []);
 
-  const categories = useMemo(() => [...new Set(medicines.map(m => m.category))].sort(), [medicines]);
-  const forms = useMemo(() => [...new Set(medicines.map(m => m.form))].sort(), [medicines]);
+  const categories = useMemo(
+    () => [...new Set(medicines.map((m) => m.category))].sort(),
+    [medicines],
+  );
+  const forms = useMemo(
+    () => [...new Set(medicines.map((m) => m.form))].sort(),
+    [medicines],
+  );
 
-  const enriched = useMemo(() =>
-    medicines.map(m => ({
-      ...m,
-      totalStock: batches.filter(b => b.medicineId === m.id).reduce((sum, b) => sum + b.remainingQuantity, 0),
-    })), [medicines, batches]);
+  const enriched = useMemo(
+    () =>
+      medicines.map((m) => ({
+        ...m,
+        totalStock: batches
+          .filter((b) => b.medicineId === m.id)
+          .reduce((sum, b) => sum + b.remainingQuantity, 0),
+      })),
+    [medicines, batches],
+  );
 
-  const filtered = useMemo(() =>
-    enriched.filter(m => {
-      const matchSearch = !search ||
-        m.brandName?.toLowerCase().includes(search.toLowerCase()) ||
-        m.genericName?.toLowerCase().includes(search.toLowerCase());
-      const matchCat = !categoryFilter || m.category === categoryFilter;
-      const matchForm = !formFilter || m.form === formFilter;
-      return matchSearch && matchCat && matchForm;
-    }), [search, categoryFilter, formFilter, enriched]);
+  const filtered = useMemo(
+    () =>
+      enriched.filter((m) => {
+        const matchSearch =
+          !search ||
+          m.brandName?.toLowerCase().includes(search.toLowerCase()) ||
+          m.genericName?.toLowerCase().includes(search.toLowerCase());
+        const matchCat = !categoryFilter || m.category === categoryFilter;
+        const matchForm = !formFilter || m.form === formFilter;
+        return matchSearch && matchCat && matchForm;
+      }),
+    [search, categoryFilter, formFilter, enriched],
+  );
 
   const totalPages = Math.ceil(filtered.length / perPage);
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 60, flexDirection: 'column', gap: 16 }}>
-        <RefreshCw size={32} color="var(--primary)" style={{ animation: 'spin 1s linear infinite' }} />
-        <p style={{ color: 'var(--text-muted)', margin: 0 }}>Loading medicines...</p>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 60,
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        <RefreshCw
+          size={32}
+          color="var(--primary)"
+          style={{ animation: "spin 1s linear infinite" }}
+        />
+        <p style={{ color: "var(--text-muted)", margin: 0 }}>
+          Loading medicines...
+        </p>
       </div>
     );
   }
@@ -68,9 +101,11 @@ export default function Medicines() {
       <div className="page-header">
         <div>
           <h1>Medicines</h1>
-          <p className="page-header-subtitle">{medicines.length} medicines in inventory</p>
+          <p className="page-header-subtitle">
+            {medicines.length} medicines in inventory
+          </p>
         </div>
-        {hasPermission('CreateMedicines') && (
+        {hasPermission("CreateMedicines") && (
           <Link to="/dashboard/medicines/new" className="btn btn-primary">
             <Plus size={18} /> Add Medicine
           </Link>
@@ -84,16 +119,41 @@ export default function Medicines() {
             className="form-input"
             placeholder="Search medicines..."
             value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
           />
         </div>
-        <select className="filter-select" value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPage(1); }}>
+        <select
+          className="filter-select"
+          value={categoryFilter}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            setPage(1);
+          }}
+        >
           <option value="">All Categories</option>
-          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
         </select>
-        <select className="filter-select" value={formFilter} onChange={e => { setFormFilter(e.target.value); setPage(1); }}>
+        <select
+          className="filter-select"
+          value={formFilter}
+          onChange={(e) => {
+            setFormFilter(e.target.value);
+            setPage(1);
+          }}
+        >
           <option value="">All Forms</option>
-          {forms.map(f => <option key={f} value={f}>{f}</option>)}
+          {forms.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -114,31 +174,65 @@ export default function Medicines() {
           </thead>
           <tbody>
             {paginated.length === 0 ? (
-              <tr><td colSpan={9} className="text-center text-muted" style={{ padding: 40 }}>No medicines found</td></tr>
-            ) : paginated.map(m => (
-              <tr key={m.id}>
-                <td style={{ fontWeight: 600 }}>{m.brandName}</td>
-                <td className="text-muted">{m.genericName}</td>
-                <td>{m.strength}</td>
-                <td><span className="badge badge-gray">{m.form}</span></td>
-                <td>{m.category}</td>
-                <td style={{ fontWeight: 600 }}>RWF {Math.round(m.price).toLocaleString()}</td>
-                <td>
-                  <span className={`badge ${m.totalStock < 10 ? 'badge-danger' : m.totalStock < 50 ? 'badge-warning' : 'badge-success'}`}>
-                    {m.totalStock}
-                  </span>
-                </td>
-                <td>{m.requiresPrescription ? <span className="badge badge-info">Rx</span> : <span className="badge badge-gray">OTC</span>}</td>
-                <td>
-                  <div className="table-actions">
-                    {hasPermission('EditMedicines') && (
-                      <Link to={`/dashboard/medicines/${m.id}/edit`} className="btn-icon" title="Edit"><Edit size={16} /></Link>
-                    )}
-                    <Link to={`/dashboard/batches?medicine=${m.id}`} className="btn-icon" title="View Batches"><Eye size={16} /></Link>
-                  </div>
+              <tr>
+                <td
+                  colSpan={9}
+                  className="text-center text-muted"
+                  style={{ padding: 40 }}
+                >
+                  No medicines found
                 </td>
               </tr>
-            ))}
+            ) : (
+              paginated.map((m) => (
+                <tr key={m.id}>
+                  <td style={{ fontWeight: 600 }}>{m.brandName}</td>
+                  <td className="text-muted">{m.genericName}</td>
+                  <td>{m.strength}</td>
+                  <td>
+                    <span className="badge badge-gray">{m.form}</span>
+                  </td>
+                  <td>{m.category}</td>
+                  <td style={{ fontWeight: 600 }}>
+                    RWF {Math.round(m.price).toLocaleString()}
+                  </td>
+                  <td>
+                    <span
+                      className={`badge ${m.totalStock < 10 ? "badge-danger" : m.totalStock < 50 ? "badge-warning" : "badge-success"}`}
+                    >
+                      {m.totalStock}
+                    </span>
+                  </td>
+                  <td>
+                    {m.requiresPrescription ? (
+                      <span className="badge badge-info">Rx</span>
+                    ) : (
+                      <span className="badge badge-gray">OTC</span>
+                    )}
+                  </td>
+                  <td>
+                    <div className="table-actions">
+                      {hasPermission("EditMedicines") && (
+                        <Link
+                          to={`/dashboard/medicines/${m.id}/edit`}
+                          className="btn-icon"
+                          title="Edit"
+                        >
+                          <Edit size={16} />
+                        </Link>
+                      )}
+                      <Link
+                        to={`/dashboard/batches?medicine=${m.id}`}
+                        className="btn-icon"
+                        title="View Batches"
+                      >
+                        <Eye size={16} />
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -146,14 +240,33 @@ export default function Medicines() {
       {totalPages > 1 && (
         <div className="pagination">
           <span className="pagination-info">
-            Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, filtered.length)} of {filtered.length}
+            Showing {(page - 1) * perPage + 1}–
+            {Math.min(page * perPage, filtered.length)} of {filtered.length}
           </span>
           <div className="pagination-buttons">
-            <button className="pagination-btn" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
+            <button
+              className="pagination-btn"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+            >
+              Previous
+            </button>
             {Array.from({ length: totalPages }, (_, i) => (
-              <button key={i + 1} className={`pagination-btn ${page === i + 1 ? 'active' : ''}`} onClick={() => setPage(i + 1)}>{i + 1}</button>
+              <button
+                key={i + 1}
+                className={`pagination-btn ${page === i + 1 ? "active" : ""}`}
+                onClick={() => setPage(i + 1)}
+              >
+                {i + 1}
+              </button>
             ))}
-            <button className="pagination-btn" disabled={page === totalPages} onClick={() => setPage(page + 1)}>Next</button>
+            <button
+              className="pagination-btn"
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </button>
           </div>
         </div>
       )}

@@ -18,7 +18,7 @@ export default function ShopMedicines() {
 
   useEffect(() => {
     getMedicines()
-      .then(data => setMedicines(data || []))
+      .then(data => setMedicines(Array.isArray(data) ? data : []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

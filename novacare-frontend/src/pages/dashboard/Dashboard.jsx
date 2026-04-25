@@ -6,8 +6,6 @@ import { getSales } from '../../api/sales';
 import { getOrders } from '../../api/orders';
 import { getUsers } from '../../api/users';
 import { getBatches } from '../../api/batches';
-import { getMedicines } from '../../api/medicines';
-import { getMessages } from '../../api/contactMessages';
 import {
   Pill, AlertTriangle, Clock, DollarSign, TrendingUp, Package,
   ShoppingCart, Users as UsersIcon, ClipboardList, MessageSquare,
@@ -21,7 +19,8 @@ import {
 
 const COLORS = ['#0d9488', '#f59e0b', '#6366f1', '#ec4899', '#22c55e', '#ef4444'];
 
-function QuickAction({ icon: Icon, label, description, onClick, color = 'var(--primary)' }) {
+function QuickAction({ icon, label, description, onClick, color = 'var(--primary)' }) {
+  const IconComp = icon;
   return (
     <button
       onClick={onClick}
@@ -38,7 +37,7 @@ function QuickAction({ icon: Icon, label, description, onClick, color = 'var(--p
         width: 42, height: 42, borderRadius: 10, background: `${color}15`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       }}>
-        <Icon size={20} color={color} />
+        <IconComp size={20} color={color} />
       </div>
       <div>
         <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{label}</div>
@@ -49,10 +48,11 @@ function QuickAction({ icon: Icon, label, description, onClick, color = 'var(--p
   );
 }
 
-function StatCard({ icon: Icon, value, label, color, trend, subtitle }) {
+function StatCard({ icon, value, label, color, trend, subtitle }) {
+  const IconComp = icon;
   return (
     <div className="stat-card">
-      <div className="stat-card-icon" style={{ background: `${color}15`, color }}><Icon size={24} /></div>
+      <div className="stat-card-icon" style={{ background: `${color}15`, color }}><IconComp size={24} /></div>
       <div className="stat-card-info">
         <h3>{value}</h3>
         <p>{label}</p>
@@ -85,20 +85,21 @@ function LoadingSpinner() {
   );
 }
 
-function EmptyState({ icon: Icon = Package, message = 'No data available yet', height }) {
+function EmptyState({ icon = Package, message = 'No data available yet', height }) {
+  const IconComp = icon;
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       gap: 10, height: height || '100%', minHeight: height || 120, padding: 24,
     }}>
-      <Icon size={32} color="var(--border-color)" strokeWidth={1.5} />
+      <IconComp size={32} color="var(--border-color)" strokeWidth={1.5} />
       <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.875rem', textAlign: 'center' }}>{message}</p>
     </div>
   );
 }
 
 // ─── Admin Dashboard ────────────────────────────────────────────────
-function AdminDashboard({ stats, salesChartData, recentSales, allOrders, allUsers, navigate }) {
+function AdminDashboard({ stats, salesChartData, recentSales, allOrders, allUsers, navigate, batches }) {
   const usersByRole = [
     { name: 'Admin',      value: allUsers.filter(u => u.role === 1 && u.isActive).length },
     { name: 'Manager',    value: allUsers.filter(u => u.role === 2 && u.isActive).length },
@@ -111,6 +112,13 @@ function AdminDashboard({ stats, salesChartData, recentSales, allOrders, allUser
     else acc.push({ name: o.status, value: 1 });
     return acc;
   }, []);
+
+  // Batches expiring within 30 days (useful for future alerts feature)
+  // eslint-disable-next-line no-unused-vars
+  const expiringSoon = (batches || []).filter(b => {
+    const daysUntilExpiry = (new Date(b.expiryDate) - new Date()) / (1000 * 60 * 60 * 24);
+    return daysUntilExpiry > 0 && daysUntilExpiry <= 30;
+  });
 
   return (
     <>
@@ -248,20 +256,13 @@ function AdminDashboard({ stats, salesChartData, recentSales, allOrders, allUser
 }
 
 // ─── Manager Dashboard ──────────────────────────────────────────────
-function ManagerDashboard({ stats, salesChartData, branchSales, branchOrders, branchTeam, branchBatches, navigate, currentUser }) {
+function ManagerDashboard({ stats, salesChartData, branchSales, branchOrders, branchTeam, branchBatches, navigate }) {
   const medicines = {};
   branchBatches.forEach(b => {
     if (b.medicine) medicines[b.medicineId] = b.medicine;
   });
 
   const lowStockBatches = branchBatches.filter(b => b.remainingQuantity < 10 && b.remainingQuantity > 0);
-  const expiringSoon = branchBatches.filter(b => {
-    const exp = new Date(b.expiryDate);
-    const today = new Date();
-    const ninetyDays = new Date();
-    ninetyDays.setDate(ninetyDays.getDate() + 90);
-    return exp > today && exp <= ninetyDays && b.remainingQuantity > 0;
-  });
 
   const paymentMethods = branchSales.reduce((acc, s) => {
     const entry = acc.find(e => e.name === s.paymentMethod);
