@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getSales } from '../../api/sales';
+import { getOrders } from '../../api/orders';
 import { getMedicines } from '../../api/medicines';
 import { getBranches } from '../../api/branches';
 import {
@@ -141,7 +142,7 @@ function FilterBar({ filters, setFilters, branches, categories, onReset }) {
                 <option value="Cash">Cash</option>
                 <option value="Card">Card</option>
                 <option value="Mobile Money">Mobile Money</option>
-                <option value="Insurance">Insurance</option>
+                <option value="Order">Order</option>
               </select>
             </div>
 
@@ -240,9 +241,22 @@ export default function Reports() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
   useEffect(() => {
-    Promise.all([getSales(), getMedicines(), getBranches()])
-      .then(([s, m, b]) => {
-        setSales(s || []);
+    Promise.all([getSales(), getOrders(), getMedicines(), getBranches()])
+      .then(([s, o, m, b]) => {
+        // Normalise approved orders to look like sales so all charts work uniformly
+        const approvedOrders = (o || [])
+          .filter(ord => ord.status === 'Approved')
+          .map(ord => ({
+            ...ord,
+            invoiceNumber: `ORD-${ord.id}`,
+            saleDate:      ord.orderDate,
+            paymentMethod: 'Order',
+            items:         (ord.items || []).map(i => ({
+              ...i,
+              unitPrice: i.unitPrice,
+            })),
+          }));
+        setSales([...(s || []), ...approvedOrders]);
         setMedicines(m || []);
         setBranches(b || []);
       })
@@ -474,10 +488,10 @@ export default function Reports() {
         <div>
           <h1>Reports</h1>
           <p className="page-header-subtitle">
-            Sales analytics and insights
+            Sales &amp; approved orders analytics
             {hasFilters && filteredSales.length !== sales.length && (
               <span style={{ marginLeft: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                — showing {filteredSales.length} of {sales.length} sales
+                — showing {filteredSales.length} of {sales.length} records
               </span>
             )}
           </p>
@@ -504,7 +518,7 @@ export default function Reports() {
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-card-icon primary"><ShoppingCart size={24} /></div>
-          <div className="stat-card-info"><h3>{stats.totalSales}</h3><p>Total Sales</p></div>
+          <div className="stat-card-info"><h3>{stats.totalSales}</h3><p>Total Records</p></div>
         </div>
         <div className="stat-card">
           <div className="stat-card-icon success"><DollarSign size={24} /></div>

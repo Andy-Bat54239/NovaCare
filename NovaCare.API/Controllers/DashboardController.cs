@@ -165,8 +165,8 @@ public class DashboardController(AppDbContext db) : ControllerBase
     public async Task<IActionResult> GetSalesChart([FromQuery] int days = 7)
     {
         var branchId = int.Parse(User.FindFirst("branchId")!.Value);
-        var role = int.Parse(User.FindFirst("role")!.Value);
-        var from = DateTime.UtcNow.Date.AddDays(-(days - 1));
+        var role     = int.Parse(User.FindFirst("role")!.Value);
+        var from     = DateTime.UtcNow.Date.AddDays(-(days - 1));
 
         var salesQuery = db.Sales.Where(s => s.SaleDate >= from);
         if (role != 1) salesQuery = salesQuery.Where(s => s.BranchId == branchId);
@@ -174,9 +174,31 @@ public class DashboardController(AppDbContext db) : ControllerBase
         var salesData = await salesQuery
             .GroupBy(s => s.SaleDate.Date)
             .Select(g => new { Date = g.Key, Revenue = g.Sum(s => s.TotalAmount), Count = g.Count() })
-            .OrderBy(x => x.Date)
             .ToListAsync();
 
-        return Ok(salesData);
+        var ordersQuery = db.Orders.Where(o => o.OrderDate >= from && o.Status == "Approved");
+        if (role != 1) ordersQuery = ordersQuery.Where(o => o.BranchId == branchId);
+
+        var ordersData = await ordersQuery
+            .GroupBy(o => o.OrderDate.Date)
+            .Select(g => new { Date = g.Key, Revenue = g.Sum(o => o.TotalAmount), Count = g.Count() })
+            .ToListAsync();
+
+        // Build one entry per day so the chart has no gaps
+        var result = Enumerable.Range(0, days)
+            .Select(i => from.AddDays(i))
+            .Select(date => new
+            {
+                Date          = date,
+                SalesRevenue  = salesData .FirstOrDefault(s => s.Date == date)?.Revenue ?? 0,
+                OrdersRevenue = ordersData.FirstOrDefault(o => o.Date == date)?.Revenue ?? 0,
+                Revenue       = (salesData .FirstOrDefault(s => s.Date == date)?.Revenue ?? 0)
+                              + (ordersData.FirstOrDefault(o => o.Date == date)?.Revenue ?? 0),
+                Count         = (salesData .FirstOrDefault(s => s.Date == date)?.Count   ?? 0)
+                              + (ordersData.FirstOrDefault(o => o.Date == date)?.Count   ?? 0),
+            })
+            .OrderBy(x => x.Date);
+
+        return Ok(result);
     }
 }

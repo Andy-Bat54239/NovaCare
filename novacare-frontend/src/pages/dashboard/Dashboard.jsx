@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, AreaChart, Area
+  PieChart, Pie, Cell, AreaChart, Area, Legend
 } from 'recharts';
 
 const COLORS = ['#0d9488', '#f59e0b', '#6366f1', '#ec4899', '#22c55e', '#ef4444'];
@@ -129,16 +129,22 @@ function AdminDashboard({ stats, salesChartData, recentSales, allOrders, allUser
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={salesChartData}>
               <defs>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
+                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#0d9488" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v) => `RWF ${Math.round(v).toLocaleString()}`} />
-              <Area type="monotone" dataKey="revenue" stroke="#0d9488" fillOpacity={1} fill="url(#colorRevenue)" />
+              <Legend />
+              <Area type="monotone" dataKey="salesRevenue"  name="Sales"          stroke="#0d9488" fillOpacity={1} fill="url(#colorSales)"  stackId="1" />
+              <Area type="monotone" dataKey="ordersRevenue" name="Approved Orders" stroke="#6366f1" fillOpacity={1} fill="url(#colorOrders)" stackId="1" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -283,14 +289,16 @@ function ManagerDashboard({ stats, salesChartData, branchSales, branchOrders, br
 
       <div className="charts-grid">
         <div className="chart-card">
-          <h3><TrendingUp size={18} style={{ marginRight: 8, verticalAlign: 'middle' }} />Branch Sales (7 Days)</h3>
+          <h3><TrendingUp size={18} style={{ marginRight: 8, verticalAlign: 'middle' }} />Branch Revenue (7 Days)</h3>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={salesChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip formatter={(v) => `RWF ${Math.round(v).toLocaleString()}`} />
-              <Bar dataKey="revenue" fill="#0d9488" radius={[4, 4, 0, 0]} />
+              <Legend />
+              <Bar dataKey="salesRevenue"  name="Sales"          fill="#0d9488" radius={[4, 4, 0, 0]} stackId="a" />
+              <Bar dataKey="ordersRevenue" name="Approved Orders" fill="#6366f1" radius={[4, 4, 0, 0]} stackId="a" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -538,9 +546,11 @@ export default function Dashboard() {
       ]);
       setStats(statsData);
       setChartData((chartRaw || []).map(d => ({
-        date: formatChartDate(d.date),
-        revenue: d.revenue,
-        count: d.count,
+        date:          formatChartDate(d.date),
+        revenue:       d.revenue,
+        salesRevenue:  d.salesRevenue,
+        ordersRevenue: d.ordersRevenue,
+        count:         d.count,
       })));
     } catch (err) {
       console.error('Dashboard stats error:', err);
