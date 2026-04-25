@@ -122,11 +122,9 @@ builder.Services.AddDirectoryBrowser();
 var app = builder.Build();
 
 // ── Middleware ────────────────────────────────────────────────────
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NovaCare Pharmacy API v1"));
-}
+// Swagger enabled in all environments so the deployed API can be tested
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "NovaCare Pharmacy API v1"));
 
 app.UseStaticFiles();
 app.UseCors("NovaCarePolicy");
@@ -139,7 +137,8 @@ app.MapHub<ChatHub>("/hubs/chat");
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    await dbContext.Database.MigrateAsync();
+    GC.Collect(); // release migration objects immediately to free RAM
 
     // Seed batches if none exist (programmatic — avoids PendingModelChangesWarning)
     if (!dbContext.Batches.Any())
