@@ -12,6 +12,10 @@ RUN dotnet publish NovaCare.API/NovaCare.API.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 
+# ca-certificates is required for MailKit to verify Gmail's SSL cert
+# tzdata provides timezone data used by DateTime operations
+RUN apk add --no-cache ca-certificates tzdata
+
 COPY --from=build /app/publish .
 
 EXPOSE 8080
