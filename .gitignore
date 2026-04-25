@@ -2,23 +2,54 @@
 NovaCare.API/bin/
 NovaCare.API/obj/
 NovaCare.API/.vs/
+NovaCare.API/wwwroot/
 *.user
 *.suo
 
-# Frontend
-novacare-frontend/node_modules/
-novacare-frontend/dist/
+# Frontend & Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+.claude
+novacare-frontend/.claude
+NovaCare-prototype/.claude
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Environment / secrets (never commit production values)
 # appsettings.json is committed for dev — do NOT copy production secrets here
-*.env
+.env
 .env.local
+*.env
 
-# Project docs (not pushed — shared separately)
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+novacare-frontend/.idea
+novacare-frontend/.claude
+novacare-frontend/dist
+NovaCare-prototype/.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Project docs 
 CLAUDE.md
+BACKEND.md
 
 # OS
-.DS_Store
 Thumbs.db
 
 # Python build scripts
