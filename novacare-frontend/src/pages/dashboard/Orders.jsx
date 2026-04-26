@@ -9,8 +9,10 @@ const API_BASE = import.meta.env.VITE_API_URL;
 function PrescriptionModal({ order, item, onClose }) {
   const medicineName = item?.medicine?.brandName || `Medicine #${item?.medicineId}`;
   // Support both server-path (DB orders) and base64 (legacy localStorage orders)
-  const src = item?.prescriptionImagePath
-    ? `${API_BASE}${item.prescriptionImagePath}`
+  // Cloudinary URLs are absolute (https://); legacy local paths need the API base prefix
+  const rawPath = item?.prescriptionImagePath;
+  const src = rawPath
+    ? (rawPath.startsWith('http') ? rawPath : `${API_BASE}${rawPath}`)
     : item?.prescriptionDataUrl || null;
   const fileName = item?.prescriptionFileName || item?.prescriptionName || 'prescription';
   const isPdf = fileName.toLowerCase().endsWith('.pdf');

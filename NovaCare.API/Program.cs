@@ -51,6 +51,7 @@ builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<NovaCare.API.Services.AuditService>();
 builder.Services.AddScoped<NovaCare.API.Services.IEmailService, NovaCare.API.Services.EmailService>();
+builder.Services.AddScoped<NovaCare.API.Services.ICloudinaryService, NovaCare.API.Services.CloudinaryService>();
 
 // Prevent EF Core navigation properties declared as "= null!" from being
 // treated as HTTP-required fields by the model binder.

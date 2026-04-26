@@ -10,7 +10,7 @@ namespace NovaCare.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditService audit, IEmailService email) : ControllerBase
+public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditService audit, IEmailService email, ICloudinaryService cloudinary) : ControllerBase
 {
     [HttpGet]
     [Authorize]
@@ -233,16 +233,10 @@ public class OrdersController(AppDbContext db, IWebHostEnvironment env, AuditSer
         var ext = Path.GetExtension(file.FileName).ToLower();
         if (!allowed.Contains(ext)) return BadRequest("Only JPG, PNG, or PDF files are allowed.");
 
-        var uploadsDir = Path.Combine(env.WebRootPath ?? "wwwroot", "uploads", "prescriptions");
-        Directory.CreateDirectory(uploadsDir);
-        var fileName = $"{Guid.NewGuid()}{ext}";
-        var filePath = Path.Combine(uploadsDir, fileName);
+        var url = await cloudinary.UploadAsync(file, "prescriptions");
 
-        await using var stream = new FileStream(filePath, FileMode.Create);
-        await file.CopyToAsync(stream);
-
-        item.PrescriptionImagePath = $"/uploads/prescriptions/{fileName}";
-        item.PrescriptionFileName = file.FileName;
+        item.PrescriptionImagePath = url;
+        item.PrescriptionFileName  = file.FileName;
 
         var order = await db.Orders.FindAsync(orderId);
         if (order is not null) order.HasPrescription = true;

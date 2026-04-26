@@ -9,7 +9,7 @@ namespace NovaCare.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MedicinesController(AppDbContext db, AuditService audit, IWebHostEnvironment env) : ControllerBase
+public class MedicinesController(AppDbContext db, AuditService audit, ICloudinaryService cloudinary) : ControllerBase
 {
     [HttpPost("upload-image")]
     [Authorize]
@@ -22,17 +22,7 @@ public class MedicinesController(AppDbContext db, AuditService audit, IWebHostEn
         var ext = Path.GetExtension(file.FileName).ToLower();
         if (!allowed.Contains(ext)) return BadRequest(new { message = "Only JPG, PNG, or WEBP files are allowed." });
 
-        var uploadsDir = Path.Combine(env.WebRootPath ?? "wwwroot", "uploads", "medicines");
-        Directory.CreateDirectory(uploadsDir);
-
-        var fileName = $"{Guid.NewGuid()}{ext}";
-        var filePath = Path.Combine(uploadsDir, fileName);
-        await using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        var path = $"/uploads/medicines/{fileName}";
+        var path = await cloudinary.UploadAsync(file, "medicines");
         return Ok(new { path });
     }
 
