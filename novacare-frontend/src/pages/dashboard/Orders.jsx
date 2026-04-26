@@ -275,8 +275,9 @@ export default function Orders() {
                             </div>
                             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                               {rxItems.map((item, idx) => {
-                                const src = item.prescriptionImagePath
-                                  ? `${API_BASE}${item.prescriptionImagePath}`
+                                const rxPath = item.prescriptionImagePath;
+                                const src = rxPath
+                                  ? (rxPath.startsWith('http') ? rxPath : `${API_BASE}${rxPath}`)
                                   : item.prescriptionDataUrl;
                                 const isPdf = (item.prescriptionFileName || item.prescriptionName || '').toLowerCase().endsWith('.pdf');
                                 return (
