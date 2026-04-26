@@ -9,6 +9,7 @@ public class Sale
     public int BranchId { get; set; }
     public decimal TotalAmount { get; set; }
     public string PaymentMethod { get; set; } = "Cash";
+    public string? PaymentReference { get; set; }
     public string? Notes { get; set; }
     public DateTime SaleDate { get; set; } = DateTime.UtcNow;
 

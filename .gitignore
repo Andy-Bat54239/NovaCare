@@ -1,26 +1,46 @@
-# .NET build output
+# =========================
+# Root .gitignore (single source)
+# =========================
+
+# Node / Frontend outputs
+**/node_modules/
+**/dist/
+**/dist-ssr/
+
+# AI/editor local folders
+**/.claude/
+**/.idea/
+
+# .NET build outputs
 NovaCare.API/bin/
 NovaCare.API/obj/
 NovaCare.API/.vs/
-*.user
-*.suo
+NovaCare.API/wwwroot/
 
-# Frontend
-novacare-frontend/node_modules/
-novacare-frontend/dist/
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Environment / secrets (never commit production values)
-# appsettings.json is committed for dev — do NOT copy production secrets here
-*.env
+# Environment / secrets
+.env
 .env.local
+*.env
+*.local
 
-# Project docs (not pushed — shared separately)
+# Editor files
+.vscode/*
+!.vscode/extensions.json
 CLAUDE.md
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Python build scripts
-build_pptx.py
-NovaCare_Presentation.pptx
+*.suo
+*.user
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -38,6 +38,7 @@ public class SalesController(AppDbContext db, AuditService audit) : ControllerBa
                 CustomerName  = s.Customer == null ? null : s.Customer.Name,
                 s.TotalAmount,
                 s.PaymentMethod,
+                s.PaymentReference,
                 s.Notes,
                 s.SaleDate,
                 Items = s.Items.Select(i => new
